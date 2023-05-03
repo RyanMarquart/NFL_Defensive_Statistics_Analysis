@@ -1,0 +1,215 @@
+---
+title: "Defense_Analysis"
+author: "Ryan Marquart"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r}
+#load(data, file = ".RData")
+#install.packages("nnls")
+
+
+#Load packages
+library(tidyverse)
+library(dplyr)
+library(gbm)
+library(rpart)
+library(rpart.plot)
+library(MASS)
+library(glmnet)
+library(nnls)
+
+#Set seed for consistency
+set.seed(500)
+```
+
+
+```{r}
+#split data between testing and training (70-30 split)
+
+sample <- sample(c(TRUE, FALSE), nrow(data), replace=TRUE, prob=c(0.7,0.3))
+train  <- data[sample, ]
+test   <- data[!sample, ]
+
+train <- as.data.frame(unclass(train), stringsAsFactors = TRUE)
+test <- as.data.frame(unclass(test), stringsAsFactors = TRUE)
+
+data
+```
+
+
+#Gradient Boosting
+```{r}
+#Make gradient boosting model
+temp_boost <- gbm(W.L. ~ . ,data = train, distribution = "gaussian", n.trees = 10000,
+                  shrinkage = 0.01, interaction.depth = 4)
+
+#Shows model variables
+summary(temp_boost)
+```
+# Descision Trees
+```{r}
+# Make the descision tree
+tree <- rpart(W.L. ~., data = train)
+rpart.plot(tree)
+
+#Plot the tree
+plotcp(tree)
+```
+
+# AIC
+```{r}
+
+#Make the linear regression model to preform stepwise AIC on
+lm <- lm(W.L. ~ G + PA + Yds_tot + Ply + Y.P + TO + FL + FirstD_tot + FirstD_pass + FirstD_run +
+             Pen + Yds_pen + FirstD_pen + Score_pct + EXP_tot + Cmp_pass + Att_pass + Cmp_pct_pass + Yds_pass + TD_pass +
+             TD_pct_pass + Int + PD + Int_pct + Y.A + AY.A + Y.C_pass + Y.G_pass + Rate + Sk +
+             Yds_Sk + Sk_pct + NY.A + EXP_pass + Att_run + Yds_run + TD_run + Y.A_run +
+             Y.G_run + EXP_run + Ret_punt + TD_punt + Y.R_punt + Ret_kick + Yds_kick + TD_kick + Y.R_kick + Pnt +
+             Yds_punt.y + Y.P_punt + FGA + FGM + FG_pct + XPA + XPM + XP_pct + PR.TD + KR.TD + 
+             FblTD + IntTD + OthTD + AllTD + X2PM + X2PA + D2P + Sfty + Pts + Pts.G + 
+             X3DAtt + X3DConv + X3D_Pct + X4DAtt + X4DConv + X4D_Pct + RZAtt + RZTD + RZPct + Num_drives +
+             Plays + Sc_pct + TO_pct.y + Plays_per_drive + Yds_per_drive + Start_pos + Time_per_drive + Pts_per_drive, 
+         data = train)
+
+#Preform stepwise AIC on linear model
+AIC <- stepAIC(lm, trace = TRUE, direction = "both")
+```
+
+
+# Lasso
+```{r}
+#Make y value win loss ratio
+y <- train$W.L.
+
+#Sets x to all other variables for predictors
+x <- data.matrix(train[,!names(train) %in% c("W.L.")])
+x <- replace(x, is.na(x), 0)
+
+#Perform k-fold cross-validation
+cv_model <- cv.glmnet(x, y, alpha = 1)
+
+#Find best lambda value 
+best_lambda <- cv_model$lambda.min
+best_lambda
+
+#Make plot of test MSE by lambda value
+plot(cv_model) 
+```
+
+```{r}
+#Makes the best lasso model and the coefficients from it
+best_model <- glmnet(x, y, alpha = 1, lambda = best_lambda, lower.limits = 0)
+#best_model2 <- nnls(x,y)
+
+#coef(best_model2)
+coef(best_model)
+```
+
+#general test
+```{r}
+#Makes values to test the lasso model against
+test_x <- data.matrix(test[,!names(test) %in% c("W.L.")])
+test_y <- test$W.L.
+
+#Matrix of estimated values from lasso model
+prediction_lasso_general <- predict(best_model, s = best_lambda, newx = test_x)
+```
+
+
+# Model from Gradient boosting 
+```{r}
+#Makes vectors for the number of trees being created
+num_trees = seq(from=100 ,to=10000, by=100) 
+
+#Makes a prediction matrix for each tree
+prediction_matrix <- predict(temp_boost, test, n.trees = num_trees)
+
+#Calculates MSE
+gradient_error<-with(train,apply( (prediction_matrix-W.L.)^2,2,mean))
+summary(gradient_error) 
+
+#Head and tails of the test error data frame to find where MSE is lowest
+head(gradient_error)
+tail(gradient_error)
+Gradient_MSE <- unname(gradient_error[100])
+```
+```{r}
+#Make data frames for the predicted values
+colnames(prediction_matrix)[100] <- "Grad_Estimates"
+Grad_estimates_general <- data.frame(prediction_matrix[,"Grad_Estimates"])
+
+
+Lasso_estimates_general <- prediction_lasso_general
+```
+
+```{r}
+#LASSO RMSE
+Test_LASSO_RMSE <- sqrt(mean((test$W.L. - Lasso_estimates_general)^2))
+Test_LASSO_RMSE
+
+#Gradient RMSEs
+Test_Gradient_RMSE <- sqrt(mean((test$W.L. - Grad_estimates_general$prediction_matrix....Grad_Estimates..)^2))
+Test_Gradient_RMSE
+```
+
+# Specific team testing
+
+# Lasso
+```{r}
+#Makes values to test the lasso model against
+test_x <- data.matrix(specific_teams[,!names(specific_teams) %in% c("W.L.", "Tm","ANY.A","TFL")])
+test_y <- test$W.L.
+
+#Matrix of estimated values from lasso model
+prediction_lasso_teams <- predict(best_model, s = best_lambda, newx = test_x)
+```
+
+# Gradient Boosting model
+```{r}
+#Makes vectors for the number of trees being created
+num_trees = seq(from=100 ,to=10000, by=100) 
+
+#Makes a prediction matrix for each tree
+prediction_matrix <- predict(temp_boost, specific_teams, n.trees = num_trees)
+
+#Calculates MSE
+gradient_error<-with(train,apply( (prediction_matrix-W.L.)^2,2,mean))
+summary(gradient_error) 
+
+#Head and tails of the test error data frame to find where MSE is lowest
+head(gradient_error)
+tail(gradient_error)
+Gradient_MSE <- unname(gradient_error[100])
+```
+
+```{r}
+#Make data frames for the predicted values
+colnames(prediction_matrix)[100] <- "Grad_Estimates"
+Grad_estimates_teams <- data.frame(prediction_matrix[,"Grad_Estimates"])
+
+
+Lasso_estimates_teams <- prediction_lasso_teams
+```
+
+#making data frame comparing values
+```{r}
+Year = c("2002", "2004", "2004","2005","2005",
+          "2007","2007","2008","2008","2008",
+          "2009","2009","2010","2011","2011",
+          "2012","2013","2014","2015","2016",
+          "2017","2017","2020","2020","2022")
+
+Wins <- data.frame(Team = specific_teams$Tm,
+                   Year = Year,
+                   Actual_Wins = specific_teams$W.L.,
+                   LASSO_Wins = Lasso_estimates_teams,
+                   Gradient_Wins = Grad_estimates_teams)
+
+colnames(Wins)[4] <- "LASSO_Wins"
+colnames(Wins)[5] <- "Gradient_Wins"
+
+Wins
+```
+

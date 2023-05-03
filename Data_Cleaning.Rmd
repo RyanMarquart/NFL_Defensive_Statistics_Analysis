@@ -1,0 +1,4100 @@
+---
+title: "Data_Cleaning"
+author: "Ryan Marquart"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r}
+library(tidyverse)
+library(dplyr)
+```
+
+
+File for cleaning and combining all datasets into one. Many of the column names
+needed go be renamed because they had the same name as columns in other datasets
+
+```{r}
+specific_teams <- data.frame()
+```
+
+
+# 2002 Season
+
+```{r}
+TD_02 <- read.csv("data/2002/TD_02.csv",skip = 1, header = TRUE)
+
+TD_02 <- TD_02[,-c(1,11,12,13,14,15,16,18,19,20,21)]
+TD_02 <- slice(TD_02, 1:(n() - 3))
+
+colnames(TD_02)[4] <- "Yds_tot"
+colnames(TD_02)[9] <- "1stD_tot"
+colnames(TD_02)[10] <- "1stD_pass"
+colnames(TD_02)[11] <- "1stD_run"
+colnames(TD_02)[13] <- "Yds_pen"
+colnames(TD_02)[14] <- "1stD_pen"
+colnames(TD_02)[15] <- "Score_pct"
+colnames(TD_02)[16] <- "TO_pct"
+colnames(TD_02)[17] <- "EXP_tot"
+
+#TD_02
+```
+
+```{r}
+PD_02 <- read.csv("data/2002/PD_02.csv", header = TRUE)
+PD_02 <- slice(PD_02, 1:(n() - 3))
+PD_02 <- PD_02[,-c(1,3)]
+colnames(PD_02)[2] <- "Cmp_pass"
+colnames(PD_02)[3] <- "Att_pct"
+colnames(PD_02)[4] <- "Cmp_pct_pass"
+colnames(PD_02)[5] <- "Yds_pass"
+colnames(PD_02)[6] <- "TD_pass"
+colnames(PD_02)[7] <- "TD_pct_pass"
+colnames(PD_02)[10] <- "Int_pct"
+colnames(PD_02)[13] <- "Y.C_pass"
+colnames(PD_02)[14] <- "Y.G_pass"
+colnames(PD_02)[17] <- "Yds_Sk"
+colnames(PD_02)[19] <- "Sk_pct"
+colnames(PD_02)[22] <- "EXP_pass"
+
+#PD_02
+```
+
+```{r}
+RD_02 <- read.csv("data/2002/RD_02.csv", header = TRUE)
+RD_02 <- slice(RD_02, 1:(n() - 3))
+RD_02 <- RD_02[,-c(1,3)]
+colnames(RD_02)[2] <- "Att_run"
+colnames(RD_02)[3] <- "Yds_run"
+colnames(RD_02)[4] <- "TD_run"
+colnames(RD_02)[5] <- "Y.A_run"
+colnames(RD_02)[6] <- "Y.G_run"
+colnames(RD_02)[7] <- "EXP_run"
+
+#RD_02
+
+```
+
+```{r}
+KPRA_02 <- read.csv("data/2002/KPRA_02.csv", skip = 1, header = TRUE)
+KPRA_02 <- slice(KPRA_02, 1:(n() - 3))
+KPRA_02 <- KPRA_02[,-c(1,3)]
+colnames(KPRA_02)[2] <- "Ret_punt"
+colnames(KPRA_02)[3] <- "Yds_punt"
+colnames(KPRA_02)[4] <- "TD_punt"
+colnames(KPRA_02)[5] <- "Y.R_punt"
+colnames(KPRA_02)[6] <- "Ret_kick"
+colnames(KPRA_02)[7] <- "Yds_kick"
+colnames(KPRA_02)[8] <- "TD_kick"
+colnames(KPRA_02)[9] <- "Y.R_kick"
+
+#KPRA_02
+
+```
+
+```{r}
+KA_02 <- read.csv("data/2002/KA_02.csv", skip = 1, header = TRUE)
+KA_02 <- slice(KA_02, 1:(n() - 3))
+KA_02 <- KA_02[,-c(1,3)]
+
+
+colnames(KA_02)[4] <- "FG_pct"
+colnames(KA_02)[7] <- "XP_pct"
+
+KA_02$FG_pct <- gsub("%", "",KA_02$FG_pct)
+KA_02$XP_pct <- gsub("%", "",KA_02$XP_pct)
+
+KA_02$FG_pct <- as.numeric(KA_02$FG_pct)
+KA_02$XP_pct <- as.numeric(KA_02$XP_pct)
+
+#KA_02
+```
+
+```{r}
+PA_02 <- read.csv("data/2002/PA_02.csv", skip = 1, header = TRUE)
+PA_02 <- slice(PA_02, 1:(n() - 3))
+PA_02 <- PA_02[,-c(1,3,7)]
+colnames(PA_02)[3] <- "Yds_punt"
+colnames(PA_02)[4] <- "Y.P_punt"
+
+#PA_02
+```
+
+```{r}
+SD_02 <- read.csv("data/2002/SD_02.csv", header = TRUE)
+SD_02 <- slice(SD_02, 1:(n() - 3))
+SD_02 <- SD_02[,-c(1,3,4,5,15,16,17,18)]
+SD_02 <- replace(SD_02, is.na(SD_02), 0)
+
+#SD_02
+```
+
+```{r}
+CA_02 <- read.csv("data/2002/CA_02.csv",skip = 1, header = TRUE)
+CA_02 <- slice(CA_02, 1:(n() - 1))
+CA_02 <- CA_02[,-c(1,3)]
+
+
+CA_02$X3D. <- gsub("%", "",CA_02$X3D.)
+CA_02$X3D. <- as.numeric(CA_02$X3D.)
+
+CA_02$X4D. <- gsub("%", "",CA_02$X4D.)
+CA_02$X4D. <- as.numeric(CA_02$X4D.)
+
+CA_02$RZPct <- gsub("%", "",CA_02$RZPct)
+CA_02$RZPct <- as.numeric(CA_02$RZPct)
+
+colnames(CA_02)[4] <- "X3D_Pct"
+colnames(CA_02)[7] <- "X4D_Pct"
+
+#CA_02
+```
+
+```{r}
+DAA_02 <- read.csv("data/2002/DAA_02.csv",skip = 1, header = TRUE)
+DAA_02 <- slice(DAA_02, 1:(n() - 1))
+DAA_02 <- DAA_02[,-c(1,3)]
+
+DAA_02$Start <- gsub("Own ", "",DAA_02$Start)
+DAA_02$Start <- as.numeric(DAA_02$Start)
+DAA_02$Start <- 100 - DAA_02$Start 
+
+
+DAA_02$Time <- sapply(strsplit(DAA_02$Time,":"),
+  function(x) {
+    x <- as.numeric(x)
+    x[1]+x[2]/60
+    }
+)
+
+colnames(DAA_02)[2] <- "Num_drives"
+colnames(DAA_02)[4] <- "Sc_pct"
+colnames(DAA_02)[5] <- "TO_pct"
+colnames(DAA_02)[6] <- "Plays_per_drive"
+colnames(DAA_02)[7] <- "Yds_per_drive"
+colnames(DAA_02)[8] <- "Start_pos"
+colnames(DAA_02)[9] <- "Time_per_drive"
+colnames(DAA_02)[10] <- "Pts_per_drive"
+
+#DAA_02
+```
+
+```{r}
+AFC_02 <- read.csv("data/2002/AFC_02.csv", header = TRUE)
+NFC_02 <- read.csv("data/2002/NFC_02.csv", header = TRUE)
+
+
+AFC_02 <- AFC_02[,-c(2,3,4,6,7,8,9)]
+NFC_02 <- NFC_02[,-c(2,3,4,6,7,8,9)]
+
+Wins_02 <- rbind(AFC_02,NFC_02)
+Wins_02
+```
+
+```{r}
+Full_02 <- merge(TD_02, Wins_02, by.x = "Tm", by.y = "Tm")
+Full_02 <- merge(Full_02, PD_02, by.x = "Tm", by.y = "Tm")
+Full_02 <- merge(Full_02, RD_02, by.x = "Tm", by.y = "Tm")
+Full_02 <- merge(Full_02, KPRA_02, by.x = "Tm", by.y = "Tm")
+Full_02 <- merge(Full_02, PA_02, by.x = "Tm", by.y = "Tm")
+Full_02 <- merge(Full_02, KA_02, by.x = "Tm", by.y = "Tm")
+Full_02 <- merge(Full_02, SD_02, by.x = "Tm", by.y = "Tm")
+Full_02 <- merge(Full_02, CA_02, by.x = "Tm", by.y = "Tm")
+Full_02 <- merge(Full_02, DAA_02, by.x = "Tm", by.y = "Tm")
+
+Full_02
+```
+
+# 2003 Season
+
+
+```{r}
+TD_03 <- read.csv("data/2003/TD_03.csv",skip = 1, header = TRUE)
+
+TD_03 <- TD_03[,-c(1,11,12,13,14,15,16,18,19,20,21)]
+TD_03 <- slice(TD_03, 1:(n() - 3))
+
+colnames(TD_03)[4] <- "Yds_tot"
+colnames(TD_03)[9] <- "1stD_tot"
+colnames(TD_03)[10] <- "1stD_pass"
+colnames(TD_03)[11] <- "1stD_run"
+colnames(TD_03)[13] <- "Yds_pen"
+colnames(TD_03)[14] <- "1stD_pen"
+colnames(TD_03)[15] <- "Score_pct"
+colnames(TD_03)[16] <- "TO_pct"
+colnames(TD_03)[17] <- "EXP_tot"
+
+#TD_03
+```
+
+```{r}
+PD_03 <- read.csv("data/2003/PD_03.csv", header = TRUE)
+PD_03 <- slice(PD_03, 1:(n() - 3))
+PD_03 <- PD_03[,-c(1,3)]
+colnames(PD_03)[2] <- "Cmp_pass"
+colnames(PD_03)[3] <- "Att_pct"
+colnames(PD_03)[4] <- "Cmp_pct_pass"
+colnames(PD_03)[5] <- "Yds_pass"
+colnames(PD_03)[6] <- "TD_pass"
+colnames(PD_03)[7] <- "TD_pct_pass"
+colnames(PD_03)[10] <- "Int_pct"
+colnames(PD_03)[13] <- "Y.C_pass"
+colnames(PD_03)[14] <- "Y.G_pass"
+colnames(PD_03)[17] <- "Yds_Sk"
+colnames(PD_03)[19] <- "Sk_pct"
+colnames(PD_03)[22] <- "EXP_pass"
+
+#PD_03
+```
+
+```{r}
+RD_03 <- read.csv("data/2003/RD_03.csv", header = TRUE)
+RD_03 <- slice(RD_03, 1:(n() - 3))
+RD_03 <- RD_03[,-c(1,3)]
+colnames(RD_03)[2] <- "Att_run"
+colnames(RD_03)[3] <- "Yds_run"
+colnames(RD_03)[4] <- "TD_run"
+colnames(RD_03)[5] <- "Y.A_run"
+colnames(RD_03)[6] <- "Y.G_run"
+colnames(RD_03)[7] <- "EXP_run"
+
+#RD_02
+
+```
+
+```{r}
+KPRA_03 <- read.csv("data/2003/KPRA_03.csv", skip = 1, header = TRUE)
+KPRA_03 <- slice(KPRA_03, 1:(n() - 3))
+KPRA_03 <- KPRA_03[,-c(1,3)]
+colnames(KPRA_03)[2] <- "Ret_punt"
+colnames(KPRA_03)[3] <- "Yds_punt"
+colnames(KPRA_03)[4] <- "TD_punt"
+colnames(KPRA_03)[5] <- "Y.R_punt"
+colnames(KPRA_03)[6] <- "Ret_kick"
+colnames(KPRA_03)[7] <- "Yds_kick"
+colnames(KPRA_03)[8] <- "TD_kick"
+colnames(KPRA_03)[9] <- "Y.R_kick"
+
+#KPRA_03
+
+```
+
+```{r}
+KA_03 <- read.csv("data/2003/KA_03.csv", skip = 1, header = TRUE)
+KA_03 <- slice(KA_03, 1:(n() - 3))
+KA_03 <- KA_03[,-c(1,3)]
+
+
+colnames(KA_03)[4] <- "FG_pct"
+colnames(KA_03)[7] <- "XP_pct"
+
+KA_03$FG_pct <- gsub("%", "",KA_03$FG_pct)
+KA_03$XP_pct <- gsub("%", "",KA_03$XP_pct)
+
+KA_03$FG_pct <- as.numeric(KA_03$FG_pct)
+KA_03$XP_pct <- as.numeric(KA_03$XP_pct)
+
+#KA_03
+```
+
+```{r}
+PA_03 <- read.csv("data/2003/PA_03.csv", skip = 1, header = TRUE)
+PA_03 <- slice(PA_03, 1:(n() - 3))
+PA_03 <- PA_03[,-c(1,3,7)]
+colnames(PA_03)[3] <- "Yds_punt"
+colnames(PA_03)[4] <- "Y.P_punt"
+
+#PA_03
+```
+
+```{r}
+SD_03 <- read.csv("data/2003/SD_03.csv", header = TRUE)
+SD_03 <- slice(SD_03, 1:(n() - 3))
+SD_03 <- SD_03[,-c(1,3,4,5,15,16,17,18)]
+SD_03 <- replace(SD_03, is.na(SD_03), 0)
+
+#SD_03
+```
+
+```{r}
+CA_03 <- read.csv("data/2003/CA_03.csv",skip = 1, header = TRUE)
+CA_03 <- slice(CA_03, 1:(n() - 1))
+CA_03 <- CA_03[,-c(1,3)]
+
+
+CA_03$X3D. <- gsub("%", "",CA_03$X3D.)
+CA_03$X3D. <- as.numeric(CA_03$X3D.)
+
+CA_03$X4D. <- gsub("%", "",CA_03$X4D.)
+CA_03$X4D. <- as.numeric(CA_03$X4D.)
+
+CA_03$RZPct <- gsub("%", "",CA_03$RZPct)
+CA_03$RZPct <- as.numeric(CA_03$RZPct)
+
+colnames(CA_03)[4] <- "X3D_Pct"
+colnames(CA_03)[7] <- "X4D_Pct"
+
+#CA_03
+```
+
+```{r}
+DAA_03 <- read.csv("data/2003/DAA_03.csv",skip = 1, header = TRUE)
+DAA_03 <- slice(DAA_03, 1:(n() - 1))
+DAA_03 <- DAA_03[,-c(1,3)]
+
+DAA_03$Start <- gsub("Own ", "",DAA_03$Start)
+DAA_03$Start <- as.numeric(DAA_03$Start)
+DAA_03$Start <- 100 - DAA_03$Start 
+
+
+DAA_03$Time <- sapply(strsplit(DAA_03$Time,":"),
+  function(x) {
+    x <- as.numeric(x)
+    x[1]+x[2]/60
+    }
+)
+
+colnames(DAA_03)[2] <- "Num_drives"
+colnames(DAA_03)[4] <- "Sc_pct"
+colnames(DAA_03)[5] <- "TO_pct"
+colnames(DAA_03)[6] <- "Plays_per_drive"
+colnames(DAA_03)[7] <- "Yds_per_drive"
+colnames(DAA_03)[8] <- "Start_pos"
+colnames(DAA_03)[9] <- "Time_per_drive"
+colnames(DAA_03)[10] <- "Pts_per_drive"
+
+#DAA_03
+```
+
+```{r}
+AFC_03 <- read.csv("data/2003/AFC_03.csv", header = TRUE)
+NFC_03 <- read.csv("data/2003/NFC_03.csv", header = TRUE)
+
+
+AFC_03 <- AFC_03[,-c(2,3,5,6,7,8,9)]
+NFC_03 <- NFC_03[,-c(2,3,5,6,7,8,9)]
+
+Wins_03 <- rbind(AFC_03,NFC_03)
+Wins_03
+```
+
+```{r}
+Full_03 <- merge(TD_03, Wins_03, by.x = "Tm", by.y = "Tm")
+Full_03 <- merge(Full_03, PD_03, by.x = "Tm", by.y = "Tm")
+Full_03 <- merge(Full_03, RD_03, by.x = "Tm", by.y = "Tm")
+Full_03 <- merge(Full_03, KPRA_03, by.x = "Tm", by.y = "Tm")
+Full_03 <- merge(Full_03, PA_03, by.x = "Tm", by.y = "Tm")
+Full_03 <- merge(Full_03, KA_03, by.x = "Tm", by.y = "Tm")
+Full_03 <- merge(Full_03, SD_03, by.x = "Tm", by.y = "Tm")
+Full_03 <- merge(Full_03, CA_03, by.x = "Tm", by.y = "Tm")
+Full_03 <- merge(Full_03, DAA_03, by.x = "Tm", by.y = "Tm")
+
+Full_03
+```
+
+# 2004 Season
+
+```{r}
+TD_04 <- read.csv("data/2004/TD_04.csv",skip = 1, header = TRUE)
+
+TD_04 <- TD_04[,-c(1,11,12,13,14,15,16,18,19,20,21)]
+TD_04 <- slice(TD_04, 1:(n() - 3))
+
+colnames(TD_04)[4] <- "Yds_tot"
+colnames(TD_04)[9] <- "1stD_tot"
+colnames(TD_04)[10] <- "1stD_pass"
+colnames(TD_04)[11] <- "1stD_run"
+colnames(TD_04)[13] <- "Yds_pen"
+colnames(TD_04)[14] <- "1stD_pen"
+colnames(TD_04)[15] <- "Score_pct"
+colnames(TD_04)[16] <- "TO_pct"
+colnames(TD_04)[17] <- "EXP_tot"
+
+#TD_04
+```
+
+```{r}
+PD_04 <- read.csv("data/2004/PD_04.csv", header = TRUE)
+PD_04 <- slice(PD_04, 1:(n() - 3))
+PD_04 <- PD_04[,-c(1,3)]
+colnames(PD_04)[2] <- "Cmp_pass"
+colnames(PD_04)[3] <- "Att_pct"
+colnames(PD_04)[4] <- "Cmp_pct_pass"
+colnames(PD_04)[5] <- "Yds_pass"
+colnames(PD_04)[6] <- "TD_pass"
+colnames(PD_04)[7] <- "TD_pct_pass"
+colnames(PD_04)[10] <- "Int_pct"
+colnames(PD_04)[13] <- "Y.C_pass"
+colnames(PD_04)[14] <- "Y.G_pass"
+colnames(PD_04)[17] <- "Yds_Sk"
+colnames(PD_04)[19] <- "Sk_pct"
+colnames(PD_04)[22] <- "EXP_pass"
+
+#PD_04
+```
+
+```{r}
+RD_04 <- read.csv("data/2004/RD_04.csv", header = TRUE)
+RD_04 <- slice(RD_04, 1:(n() - 3))
+RD_04 <- RD_04[,-c(1,3)]
+colnames(RD_04)[2] <- "Att_run"
+colnames(RD_04)[3] <- "Yds_run"
+colnames(RD_04)[4] <- "TD_run"
+colnames(RD_04)[5] <- "Y.A_run"
+colnames(RD_04)[6] <- "Y.G_run"
+colnames(RD_04)[7] <- "EXP_run"
+
+#RD_02
+
+```
+
+```{r}
+KPRA_04 <- read.csv("data/2004/KPRA_04.csv", skip = 1, header = TRUE)
+KPRA_04 <- slice(KPRA_04, 1:(n() - 3))
+KPRA_04 <- KPRA_04[,-c(1,3)]
+colnames(KPRA_04)[2] <- "Ret_punt"
+colnames(KPRA_04)[3] <- "Yds_punt"
+colnames(KPRA_04)[4] <- "TD_punt"
+colnames(KPRA_04)[5] <- "Y.R_punt"
+colnames(KPRA_04)[6] <- "Ret_kick"
+colnames(KPRA_04)[7] <- "Yds_kick"
+colnames(KPRA_04)[8] <- "TD_kick"
+colnames(KPRA_04)[9] <- "Y.R_kick"
+
+#KPRA_04
+
+```
+
+```{r}
+KA_04 <- read.csv("data/2004/KA_04.csv", skip = 1, header = TRUE)
+KA_04 <- slice(KA_04, 1:(n() - 3))
+KA_04 <- KA_04[,-c(1,3)]
+
+
+colnames(KA_04)[4] <- "FG_pct"
+colnames(KA_04)[7] <- "XP_pct"
+
+KA_04$FG_pct <- gsub("%", "",KA_04$FG_pct)
+KA_04$XP_pct <- gsub("%", "",KA_04$XP_pct)
+
+KA_04$FG_pct <- as.numeric(KA_04$FG_pct)
+KA_04$XP_pct <- as.numeric(KA_04$XP_pct)
+
+#KA_04
+```
+
+```{r}
+PA_04 <- read.csv("data/2004/PA_04.csv", skip = 1, header = TRUE)
+PA_04 <- slice(PA_04, 1:(n() - 3))
+PA_04 <- PA_04[,-c(1,3,7)]
+colnames(PA_04)[3] <- "Yds_punt"
+colnames(PA_04)[4] <- "Y.P_punt"
+
+#PA_04
+```
+
+```{r}
+SD_04 <- read.csv("data/2004/SD_04.csv", header = TRUE)
+SD_04 <- slice(SD_04, 1:(n() - 3))
+SD_04 <- SD_04[,-c(1,3,4,5,15,16,17,18)]
+SD_04 <- replace(SD_04, is.na(SD_04), 0)
+
+#SD_04
+```
+
+```{r}
+CA_04 <- read.csv("data/2004/CA_04.csv",skip = 1, header = TRUE)
+CA_04 <- slice(CA_04, 1:(n() - 1))
+CA_04 <- CA_04[,-c(1,3)]
+
+
+CA_04$X3D. <- gsub("%", "",CA_04$X3D.)
+CA_04$X3D. <- as.numeric(CA_04$X3D.)
+
+CA_04$X4D. <- gsub("%", "",CA_04$X4D.)
+CA_04$X4D. <- as.numeric(CA_04$X4D.)
+
+CA_04$RZPct <- gsub("%", "",CA_04$RZPct)
+CA_04$RZPct <- as.numeric(CA_04$RZPct)
+
+colnames(CA_04)[4] <- "X3D_Pct"
+colnames(CA_04)[7] <- "X4D_Pct"
+
+#CA_04
+```
+
+```{r}
+DAA_04 <- read.csv("data/2004/DAA_04.csv",skip = 1, header = TRUE)
+DAA_04 <- slice(DAA_04, 1:(n() - 1))
+DAA_04 <- DAA_04[,-c(1,3)]
+
+DAA_04$Start <- gsub("Own ", "",DAA_04$Start)
+DAA_04$Start <- as.numeric(DAA_04$Start)
+DAA_04$Start <- 100 - DAA_04$Start 
+
+
+DAA_04$Time <- sapply(strsplit(DAA_04$Time,":"),
+  function(x) {
+    x <- as.numeric(x)
+    x[1]+x[2]/60
+    }
+)
+
+colnames(DAA_04)[2] <- "Num_drives"
+colnames(DAA_04)[4] <- "Sc_pct"
+colnames(DAA_04)[5] <- "TO_pct"
+colnames(DAA_04)[6] <- "Plays_per_drive"
+colnames(DAA_04)[7] <- "Yds_per_drive"
+colnames(DAA_04)[8] <- "Start_pos"
+colnames(DAA_04)[9] <- "Time_per_drive"
+colnames(DAA_04)[10] <- "Pts_per_drive"
+
+#DAA_04
+```
+
+```{r}
+AFC_04 <- read.csv("data/2004/AFC_04.csv", header = TRUE)
+NFC_04 <- read.csv("data/2004/NFC_04.csv", header = TRUE)
+
+
+AFC_04 <- AFC_04[,-c(2,3,5,6,7,8,9)]
+NFC_04 <- NFC_04[,-c(2,3,5,6,7,8,9)]
+
+Wins_04 <- rbind(AFC_04,NFC_04)
+Wins_04
+```
+
+```{r}
+Full_04 <- merge(TD_04, Wins_04, by.x = "Tm", by.y = "Tm")
+Full_04 <- merge(Full_04, PD_04, by.x = "Tm", by.y = "Tm")
+Full_04 <- merge(Full_04, RD_04, by.x = "Tm", by.y = "Tm")
+Full_04 <- merge(Full_04, KPRA_04, by.x = "Tm", by.y = "Tm")
+Full_04 <- merge(Full_04, PA_04, by.x = "Tm", by.y = "Tm")
+Full_04 <- merge(Full_04, KA_04, by.x = "Tm", by.y = "Tm")
+Full_04 <- merge(Full_04, SD_04, by.x = "Tm", by.y = "Tm")
+Full_04 <- merge(Full_04, CA_04, by.x = "Tm", by.y = "Tm")
+Full_04 <- merge(Full_04, DAA_04, by.x = "Tm", by.y = "Tm")
+
+Full_04
+
+```
+
+# 2005 Season
+
+```{r}
+TD_05 <- read.csv("data/2005/TD_05.csv",skip = 1, header = TRUE)
+
+TD_05 <- TD_05[,-c(1,11,12,13,14,15,16,18,19,20,21)]
+TD_05 <- slice(TD_05, 1:(n() - 3))
+
+colnames(TD_05)[4] <- "Yds_tot"
+colnames(TD_05)[9] <- "1stD_tot"
+colnames(TD_05)[10] <- "1stD_pass"
+colnames(TD_05)[11] <- "1stD_run"
+colnames(TD_05)[13] <- "Yds_pen"
+colnames(TD_05)[14] <- "1stD_pen"
+colnames(TD_05)[15] <- "Score_pct"
+colnames(TD_05)[16] <- "TO_pct"
+colnames(TD_05)[17] <- "EXP_tot"
+
+#TD_05
+```
+
+```{r}
+PD_05 <- read.csv("data/2005/PD_05.csv", header = TRUE)
+PD_05 <- slice(PD_05, 1:(n() - 3))
+PD_05 <- PD_05[,-c(1,3)]
+colnames(PD_05)[2] <- "Cmp_pass"
+colnames(PD_05)[3] <- "Att_pct"
+colnames(PD_05)[4] <- "Cmp_pct_pass"
+colnames(PD_05)[5] <- "Yds_pass"
+colnames(PD_05)[6] <- "TD_pass"
+colnames(PD_05)[7] <- "TD_pct_pass"
+colnames(PD_05)[10] <- "Int_pct"
+colnames(PD_05)[13] <- "Y.C_pass"
+colnames(PD_05)[14] <- "Y.G_pass"
+colnames(PD_05)[17] <- "Yds_Sk"
+colnames(PD_05)[19] <- "Sk_pct"
+colnames(PD_05)[22] <- "EXP_pass"
+
+#PD_05
+```
+
+```{r}
+RD_05 <- read.csv("data/2005/RD_05.csv", header = TRUE)
+RD_05 <- slice(RD_05, 1:(n() - 3))
+RD_05 <- RD_05[,-c(1,3)]
+colnames(RD_05)[2] <- "Att_run"
+colnames(RD_05)[3] <- "Yds_run"
+colnames(RD_05)[4] <- "TD_run"
+colnames(RD_05)[5] <- "Y.A_run"
+colnames(RD_05)[6] <- "Y.G_run"
+colnames(RD_05)[7] <- "EXP_run"
+
+#RD_02
+
+```
+
+```{r}
+KPRA_05 <- read.csv("data/2005/KPRA_05.csv", skip = 1, header = TRUE)
+KPRA_05 <- slice(KPRA_05, 1:(n() - 3))
+KPRA_05 <- KPRA_05[,-c(1,3)]
+colnames(KPRA_05)[2] <- "Ret_punt"
+colnames(KPRA_05)[3] <- "Yds_punt"
+colnames(KPRA_05)[4] <- "TD_punt"
+colnames(KPRA_05)[5] <- "Y.R_punt"
+colnames(KPRA_05)[6] <- "Ret_kick"
+colnames(KPRA_05)[7] <- "Yds_kick"
+colnames(KPRA_05)[8] <- "TD_kick"
+colnames(KPRA_05)[9] <- "Y.R_kick"
+
+#KPRA_05
+
+```
+
+```{r}
+KA_05 <- read.csv("data/2005/KA_05.csv", skip = 1, header = TRUE)
+KA_05 <- slice(KA_05, 1:(n() - 3))
+KA_05 <- KA_05[,-c(1,3)]
+
+
+colnames(KA_05)[4] <- "FG_pct"
+colnames(KA_05)[7] <- "XP_pct"
+
+KA_05$FG_pct <- gsub("%", "",KA_05$FG_pct)
+KA_05$XP_pct <- gsub("%", "",KA_05$XP_pct)
+
+KA_05$FG_pct <- as.numeric(KA_05$FG_pct)
+KA_05$XP_pct <- as.numeric(KA_05$XP_pct)
+
+#KA_05
+```
+
+```{r}
+PA_05 <- read.csv("data/2005/PA_05.csv", skip = 1, header = TRUE)
+PA_05 <- slice(PA_05, 1:(n() - 3))
+PA_05 <- PA_05[,-c(1,3,7)]
+colnames(PA_05)[3] <- "Yds_punt"
+colnames(PA_05)[4] <- "Y.P_punt"
+
+#PA_05
+```
+
+```{r}
+SD_05 <- read.csv("data/2005/SD_05.csv", header = TRUE)
+SD_05 <- slice(SD_05, 1:(n() - 3))
+SD_05 <- SD_05[,-c(1,3,4,5,15,16,17,18)]
+SD_05 <- replace(SD_05, is.na(SD_05), 0)
+
+#SD_05
+```
+
+```{r}
+CA_05 <- read.csv("data/2005/CA_05.csv",skip = 1, header = TRUE)
+CA_05 <- slice(CA_05, 1:(n() - 1))
+CA_05 <- CA_05[,-c(1,3)]
+
+
+CA_05$X3D. <- gsub("%", "",CA_05$X3D.)
+CA_05$X3D. <- as.numeric(CA_05$X3D.)
+
+CA_05$X4D. <- gsub("%", "",CA_05$X4D.)
+CA_05$X4D. <- as.numeric(CA_05$X4D.)
+
+CA_05$RZPct <- gsub("%", "",CA_05$RZPct)
+CA_05$RZPct <- as.numeric(CA_05$RZPct)
+
+colnames(CA_05)[4] <- "X3D_Pct"
+colnames(CA_05)[7] <- "X4D_Pct"
+
+#CA_05
+```
+
+```{r}
+DAA_05 <- read.csv("data/2005/DAA_05.csv",skip = 1, header = TRUE)
+DAA_05 <- slice(DAA_05, 1:(n() - 1))
+DAA_05 <- DAA_05[,-c(1,3)]
+
+DAA_05$Start <- gsub("Own ", "",DAA_05$Start)
+DAA_05$Start <- as.numeric(DAA_05$Start)
+DAA_05$Start <- 100 - DAA_05$Start 
+
+
+DAA_05$Time <- sapply(strsplit(DAA_05$Time,":"),
+  function(x) {
+    x <- as.numeric(x)
+    x[1]+x[2]/60
+    }
+)
+
+colnames(DAA_05)[2] <- "Num_drives"
+colnames(DAA_05)[4] <- "Sc_pct"
+colnames(DAA_05)[5] <- "TO_pct"
+colnames(DAA_05)[6] <- "Plays_per_drive"
+colnames(DAA_05)[7] <- "Yds_per_drive"
+colnames(DAA_05)[8] <- "Start_pos"
+colnames(DAA_05)[9] <- "Time_per_drive"
+colnames(DAA_05)[10] <- "Pts_per_drive"
+
+#DAA_05
+```
+
+```{r}
+AFC_05 <- read.csv("data/2005/AFC_05.csv", header = TRUE)
+NFC_05 <- read.csv("data/2005/NFC_05.csv", header = TRUE)
+
+
+AFC_05 <- AFC_05[,-c(2,3,5,6,7,8,9)]
+NFC_05 <- NFC_05[,-c(2,3,5,6,7,8,9)]
+
+Wins_05 <- rbind(AFC_05,NFC_05)
+Wins_05
+```
+
+```{r}
+Full_05 <- merge(TD_05, Wins_05, by.x = "Tm", by.y = "Tm")
+Full_05 <- merge(Full_05, PD_05, by.x = "Tm", by.y = "Tm")
+Full_05 <- merge(Full_05, RD_05, by.x = "Tm", by.y = "Tm")
+Full_05 <- merge(Full_05, KPRA_05, by.x = "Tm", by.y = "Tm")
+Full_05 <- merge(Full_05, PA_05, by.x = "Tm", by.y = "Tm")
+Full_05 <- merge(Full_05, KA_05, by.x = "Tm", by.y = "Tm")
+Full_05 <- merge(Full_05, SD_05, by.x = "Tm", by.y = "Tm")
+Full_05 <- merge(Full_05, CA_05, by.x = "Tm", by.y = "Tm")
+Full_05 <- merge(Full_05, DAA_05, by.x = "Tm", by.y = "Tm")
+
+Full_05
+```
+
+# 2006 Season
+
+```{r TD_06}
+TD_06 <- read.csv("data/2006/TD_06.csv",skip = 1, header = TRUE)
+
+TD_06 <- TD_06[,-c(1,11,12,13,14,15,16,18,19,20,21)]
+TD_06 <- slice(TD_06, 1:(n() - 3))
+
+colnames(TD_06)[4] <- "Yds_tot"
+colnames(TD_06)[9] <- "1stD_tot"
+colnames(TD_06)[10] <- "1stD_pass"
+colnames(TD_06)[11] <- "1stD_run"
+colnames(TD_06)[13] <- "Yds_pen"
+colnames(TD_06)[14] <- "1stD_pen"
+colnames(TD_06)[15] <- "Score_pct"
+colnames(TD_06)[16] <- "TO_pct"
+colnames(TD_06)[17] <- "EXP_tot"
+
+#TD_06
+```
+
+```{r PD_06}
+PD_06 <- read.csv("data/2006/PD_06.csv", header = TRUE)
+PD_06 <- slice(PD_06, 1:(n() - 3))
+PD_06 <- PD_06[,-c(1,3)]
+colnames(PD_06)[2] <- "Cmp_pass"
+colnames(PD_06)[3] <- "Att_pct"
+colnames(PD_06)[4] <- "Cmp_pct_pass"
+colnames(PD_06)[5] <- "Yds_pass"
+colnames(PD_06)[6] <- "TD_pass"
+colnames(PD_06)[7] <- "TD_pct_pass"
+colnames(PD_06)[10] <- "Int_pct"
+colnames(PD_06)[13] <- "Y.C_pass"
+colnames(PD_06)[14] <- "Y.G_pass"
+colnames(PD_06)[17] <- "Yds_Sk"
+colnames(PD_06)[19] <- "Sk_pct"
+colnames(PD_06)[22] <- "EXP_pass"
+
+#PD_06
+```
+
+```{r RD_06}
+RD_06 <- read.csv("data/2006/RD_06.csv", header = TRUE)
+RD_06 <- slice(RD_06, 1:(n() - 3))
+RD_06 <- RD_06[,-c(1,3)]
+colnames(RD_06)[2] <- "Att_run"
+colnames(RD_06)[3] <- "Yds_run"
+colnames(RD_06)[4] <- "TD_run"
+colnames(RD_06)[5] <- "Y.A_run"
+colnames(RD_06)[6] <- "Y.G_run"
+colnames(RD_06)[7] <- "EXP_run"
+
+#RD_02
+
+```
+
+```{r KPRA_06}
+KPRA_06 <- read.csv("data/2006/KPRA_06.csv", skip = 1, header = TRUE)
+KPRA_06 <- slice(KPRA_06, 1:(n() - 3))
+KPRA_06 <- KPRA_06[,-c(1,3)]
+colnames(KPRA_06)[2] <- "Ret_punt"
+colnames(KPRA_06)[3] <- "Yds_punt"
+colnames(KPRA_06)[4] <- "TD_punt"
+colnames(KPRA_06)[5] <- "Y.R_punt"
+colnames(KPRA_06)[6] <- "Ret_kick"
+colnames(KPRA_06)[7] <- "Yds_kick"
+colnames(KPRA_06)[8] <- "TD_kick"
+colnames(KPRA_06)[9] <- "Y.R_kick"
+
+#KPRA_06
+
+```
+
+```{r KA_06}
+KA_06 <- read.csv("data/2006/KA_06.csv", skip = 1, header = TRUE)
+KA_06 <- slice(KA_06, 1:(n() - 3))
+KA_06 <- KA_06[,-c(1,3)]
+
+
+colnames(KA_06)[4] <- "FG_pct"
+colnames(KA_06)[7] <- "XP_pct"
+
+KA_06$FG_pct <- gsub("%", "",KA_06$FG_pct)
+KA_06$XP_pct <- gsub("%", "",KA_06$XP_pct)
+
+KA_06$FG_pct <- as.numeric(KA_06$FG_pct)
+KA_06$XP_pct <- as.numeric(KA_06$XP_pct)
+
+#KA_06
+```
+
+```{r PA_06}
+PA_06 <- read.csv("data/2006/PA_06.csv", skip = 1, header = TRUE)
+PA_06 <- slice(PA_06, 1:(n() - 3))
+PA_06 <- PA_06[,-c(1,3,7)]
+colnames(PA_06)[3] <- "Yds_punt"
+colnames(PA_06)[4] <- "Y.P_punt"
+
+#PA_06
+```
+
+```{r SD_06}
+SD_06 <- read.csv("data/2006/SD_06.csv", header = TRUE)
+SD_06 <- slice(SD_06, 1:(n() - 3))
+SD_06 <- SD_06[,-c(1,3,4,5,15,16,17,18)]
+SD_06 <- replace(SD_06, is.na(SD_06), 0)
+
+#SD_06
+```
+
+```{r CA_06}
+CA_06 <- read.csv("data/2006/CA_06.csv",skip = 1, header = TRUE)
+CA_06 <- slice(CA_06, 1:(n() - 1))
+CA_06 <- CA_06[,-c(1,3)]
+
+
+CA_06$X3D. <- gsub("%", "",CA_06$X3D.)
+CA_06$X3D. <- as.numeric(CA_06$X3D.)
+
+CA_06$X4D. <- gsub("%", "",CA_06$X4D.)
+CA_06$X4D. <- as.numeric(CA_06$X4D.)
+
+CA_06$RZPct <- gsub("%", "",CA_06$RZPct)
+CA_06$RZPct <- as.numeric(CA_06$RZPct)
+
+colnames(CA_06)[4] <- "X3D_Pct"
+colnames(CA_06)[7] <- "X4D_Pct"
+
+#CA_06
+```
+
+```{r DAA_06}
+DAA_06 <- read.csv("data/2006/DAA_06.csv",skip = 1, header = TRUE)
+DAA_06 <- slice(DAA_06, 1:(n() - 1))
+DAA_06 <- DAA_06[,-c(1,3)]
+
+DAA_06$Start <- gsub("Own ", "",DAA_06$Start)
+DAA_06$Start <- as.numeric(DAA_06$Start)
+DAA_06$Start <- 100 - DAA_06$Start 
+
+
+DAA_06$Time <- sapply(strsplit(DAA_06$Time,":"),
+  function(x) {
+    x <- as.numeric(x)
+    x[1]+x[2]/60
+    }
+)
+
+colnames(DAA_06)[2] <- "Num_drives"
+colnames(DAA_06)[4] <- "Sc_pct"
+colnames(DAA_06)[5] <- "TO_pct"
+colnames(DAA_06)[6] <- "Plays_per_drive"
+colnames(DAA_06)[7] <- "Yds_per_drive"
+colnames(DAA_06)[8] <- "Start_pos"
+colnames(DAA_06)[9] <- "Time_per_drive"
+colnames(DAA_06)[10] <- "Pts_per_drive"
+
+#DAA_06
+```
+
+```{r WINS_06}
+AFC_06 <- read.csv("data/2006/AFC_06.csv", header = TRUE)
+NFC_06 <- read.csv("data/2006/NFC_06.csv", header = TRUE)
+
+
+AFC_06 <- AFC_06[,-c(2,3,5,6,7,8,9)]
+NFC_06 <- NFC_06[,-c(2,3,5,6,7,8,9)]
+
+Wins_06 <- rbind(AFC_06,NFC_06)
+Wins_06
+```
+
+```{r MERGE_06}
+Full_06 <- merge(TD_06, Wins_06, by.x = "Tm", by.y = "Tm")
+Full_06 <- merge(Full_06, PD_06, by.x = "Tm", by.y = "Tm")
+Full_06 <- merge(Full_06, RD_06, by.x = "Tm", by.y = "Tm")
+Full_06 <- merge(Full_06, KPRA_06, by.x = "Tm", by.y = "Tm")
+Full_06 <- merge(Full_06, PA_06, by.x = "Tm", by.y = "Tm")
+Full_06 <- merge(Full_06, KA_06, by.x = "Tm", by.y = "Tm")
+Full_06 <- merge(Full_06, SD_06, by.x = "Tm", by.y = "Tm")
+Full_06 <- merge(Full_06, CA_06, by.x = "Tm", by.y = "Tm")
+Full_06 <- merge(Full_06, DAA_06, by.x = "Tm", by.y = "Tm")
+
+Full_06
+```
+
+# 2007 Season
+
+```{r TD_07}
+TD_07 <- read.csv("data/2007/TD_07.csv",skip = 1, header = TRUE)
+
+TD_07 <- TD_07[,-c(1,11,12,13,14,15,16,18,19,20,21)]
+TD_07 <- slice(TD_07, 1:(n() - 3))
+
+colnames(TD_07)[4] <- "Yds_tot"
+colnames(TD_07)[9] <- "1stD_tot"
+colnames(TD_07)[10] <- "1stD_pass"
+colnames(TD_07)[11] <- "1stD_run"
+colnames(TD_07)[13] <- "Yds_pen"
+colnames(TD_07)[14] <- "1stD_pen"
+colnames(TD_07)[15] <- "Score_pct"
+colnames(TD_07)[16] <- "TO_pct"
+colnames(TD_07)[17] <- "EXP_tot"
+
+#TD_07
+```
+
+```{r PD_07}
+PD_07 <- read.csv("data/2007/PD_07.csv", header = TRUE)
+PD_07 <- slice(PD_07, 1:(n() - 3))
+PD_07 <- PD_07[,-c(1,3)]
+colnames(PD_07)[2] <- "Cmp_pass"
+colnames(PD_07)[3] <- "Att_pct"
+colnames(PD_07)[4] <- "Cmp_pct_pass"
+colnames(PD_07)[5] <- "Yds_pass"
+colnames(PD_07)[6] <- "TD_pass"
+colnames(PD_07)[7] <- "TD_pct_pass"
+colnames(PD_07)[10] <- "Int_pct"
+colnames(PD_07)[13] <- "Y.C_pass"
+colnames(PD_07)[14] <- "Y.G_pass"
+colnames(PD_07)[17] <- "Yds_Sk"
+colnames(PD_07)[19] <- "Sk_pct"
+colnames(PD_07)[22] <- "EXP_pass"
+
+#PD_07
+```
+
+```{r RD_07}
+RD_07 <- read.csv("data/2007/RD_07.csv", header = TRUE)
+RD_07 <- slice(RD_07, 1:(n() - 3))
+RD_07 <- RD_07[,-c(1,3)]
+colnames(RD_07)[2] <- "Att_run"
+colnames(RD_07)[3] <- "Yds_run"
+colnames(RD_07)[4] <- "TD_run"
+colnames(RD_07)[5] <- "Y.A_run"
+colnames(RD_07)[6] <- "Y.G_run"
+colnames(RD_07)[7] <- "EXP_run"
+
+#RD_02
+
+```
+
+```{r KPRA_07}
+KPRA_07 <- read.csv("data/2007/KPRA_07.csv", skip = 1, header = TRUE)
+KPRA_07 <- slice(KPRA_07, 1:(n() - 3))
+KPRA_07 <- KPRA_07[,-c(1,3)]
+colnames(KPRA_07)[2] <- "Ret_punt"
+colnames(KPRA_07)[3] <- "Yds_punt"
+colnames(KPRA_07)[4] <- "TD_punt"
+colnames(KPRA_07)[5] <- "Y.R_punt"
+colnames(KPRA_07)[6] <- "Ret_kick"
+colnames(KPRA_07)[7] <- "Yds_kick"
+colnames(KPRA_07)[8] <- "TD_kick"
+colnames(KPRA_07)[9] <- "Y.R_kick"
+
+#KPRA_07
+
+```
+
+```{r KA_07}
+KA_07 <- read.csv("data/2007/KA_07.csv", skip = 1, header = TRUE)
+KA_07 <- slice(KA_07, 1:(n() - 3))
+KA_07 <- KA_07[,-c(1,3)]
+
+
+colnames(KA_07)[4] <- "FG_pct"
+colnames(KA_07)[7] <- "XP_pct"
+
+KA_07$FG_pct <- gsub("%", "",KA_07$FG_pct)
+KA_07$XP_pct <- gsub("%", "",KA_07$XP_pct)
+
+KA_07$FG_pct <- as.numeric(KA_07$FG_pct)
+KA_07$XP_pct <- as.numeric(KA_07$XP_pct)
+
+#KA_07
+```
+
+```{r PA_07}
+PA_07 <- read.csv("data/2007/PA_07.csv", skip = 1, header = TRUE)
+PA_07 <- slice(PA_07, 1:(n() - 3))
+PA_07 <- PA_07[,-c(1,3,7)]
+colnames(PA_07)[3] <- "Yds_punt"
+colnames(PA_07)[4] <- "Y.P_punt"
+
+#PA_07
+```
+
+```{r SD_07}
+SD_07 <- read.csv("data/2007/SD_07.csv", header = TRUE)
+SD_07 <- slice(SD_07, 1:(n() - 3))
+SD_07 <- SD_07[,-c(1,3,4,5,15,16,17,18)]
+SD_07 <- replace(SD_07, is.na(SD_07), 0)
+
+#SD_07
+```
+
+```{r CA_07}
+CA_07 <- read.csv("data/2007/CA_07.csv",skip = 1, header = TRUE)
+CA_07 <- slice(CA_07, 1:(n() - 1))
+CA_07 <- CA_07[,-c(1,3)]
+
+
+CA_07$X3D. <- gsub("%", "",CA_07$X3D.)
+CA_07$X3D. <- as.numeric(CA_07$X3D.)
+
+CA_07$X4D. <- gsub("%", "",CA_07$X4D.)
+CA_07$X4D. <- as.numeric(CA_07$X4D.)
+
+CA_07$RZPct <- gsub("%", "",CA_07$RZPct)
+CA_07$RZPct <- as.numeric(CA_07$RZPct)
+
+colnames(CA_07)[4] <- "X3D_Pct"
+colnames(CA_07)[7] <- "X4D_Pct"
+
+#CA_07
+```
+
+```{r DAA_07}
+DAA_07 <- read.csv("data/2007/DAA_07.csv",skip = 1, header = TRUE)
+DAA_07 <- slice(DAA_07, 1:(n() - 1))
+DAA_07 <- DAA_07[,-c(1,3)]
+
+DAA_07$Start <- gsub("Own ", "",DAA_07$Start)
+DAA_07$Start <- as.numeric(DAA_07$Start)
+DAA_07$Start <- 100 - DAA_07$Start 
+
+
+DAA_07$Time <- sapply(strsplit(DAA_07$Time,":"),
+  function(x) {
+    x <- as.numeric(x)
+    x[1]+x[2]/60
+    }
+)
+
+colnames(DAA_07)[2] <- "Num_drives"
+colnames(DAA_07)[4] <- "Sc_pct"
+colnames(DAA_07)[5] <- "TO_pct"
+colnames(DAA_07)[6] <- "Plays_per_drive"
+colnames(DAA_07)[7] <- "Yds_per_drive"
+colnames(DAA_07)[8] <- "Start_pos"
+colnames(DAA_07)[9] <- "Time_per_drive"
+colnames(DAA_07)[10] <- "Pts_per_drive"
+
+#DAA_07
+```
+
+```{r WINS_07}
+AFC_07 <- read.csv("data/2007/AFC_07.csv", header = TRUE)
+NFC_07 <- read.csv("data/2007/NFC_07.csv", header = TRUE)
+
+
+AFC_07 <- AFC_07[,-c(2,3,5,6,7,8,9)]
+NFC_07 <- NFC_07[,-c(2,3,5,6,7,8,9)]
+
+Wins_07 <- rbind(AFC_07,NFC_07)
+Wins_07
+```
+
+```{r MERGE_07}
+Full_07 <- merge(TD_07, Wins_07, by.x = "Tm", by.y = "Tm")
+Full_07 <- merge(Full_07, PD_07, by.x = "Tm", by.y = "Tm")
+Full_07 <- merge(Full_07, RD_07, by.x = "Tm", by.y = "Tm")
+Full_07 <- merge(Full_07, KPRA_07, by.x = "Tm", by.y = "Tm")
+Full_07 <- merge(Full_07, PA_07, by.x = "Tm", by.y = "Tm")
+Full_07 <- merge(Full_07, KA_07, by.x = "Tm", by.y = "Tm")
+Full_07 <- merge(Full_07, SD_07, by.x = "Tm", by.y = "Tm")
+Full_07 <- merge(Full_07, CA_07, by.x = "Tm", by.y = "Tm")
+Full_07 <- merge(Full_07, DAA_07, by.x = "Tm", by.y = "Tm")
+
+Full_07
+```
+
+
+# 2008 Season
+
+```{r TD_08}
+TD_08 <- read.csv("data/2008/TD_08.csv",skip = 1, header = TRUE)
+
+TD_08 <- TD_08[,-c(1,11,12,13,14,15,16,18,19,20,21)]
+TD_08 <- slice(TD_08, 1:(n() - 3))
+
+colnames(TD_08)[4] <- "Yds_tot"
+colnames(TD_08)[9] <- "1stD_tot"
+colnames(TD_08)[10] <- "1stD_pass"
+colnames(TD_08)[11] <- "1stD_run"
+colnames(TD_08)[13] <- "Yds_pen"
+colnames(TD_08)[14] <- "1stD_pen"
+colnames(TD_08)[15] <- "Score_pct"
+colnames(TD_08)[16] <- "TO_pct"
+colnames(TD_08)[17] <- "EXP_tot"
+
+#TD_08
+```
+
+```{r PD_08}
+PD_08 <- read.csv("data/2008/PD_08.csv", header = TRUE)
+PD_08 <- slice(PD_08, 1:(n() - 3))
+PD_08 <- PD_08[,-c(1,3)]
+colnames(PD_08)[2] <- "Cmp_pass"
+colnames(PD_08)[3] <- "Att_pct"
+colnames(PD_08)[4] <- "Cmp_pct_pass"
+colnames(PD_08)[5] <- "Yds_pass"
+colnames(PD_08)[6] <- "TD_pass"
+colnames(PD_08)[7] <- "TD_pct_pass"
+colnames(PD_08)[10] <- "Int_pct"
+colnames(PD_08)[13] <- "Y.C_pass"
+colnames(PD_08)[14] <- "Y.G_pass"
+colnames(PD_08)[17] <- "Yds_Sk"
+colnames(PD_08)[19] <- "Sk_pct"
+colnames(PD_08)[22] <- "EXP_pass"
+
+#PD_08
+```
+
+```{r RD_08}
+RD_08 <- read.csv("data/2008/RD_08.csv", header = TRUE)
+RD_08 <- slice(RD_08, 1:(n() - 3))
+RD_08 <- RD_08[,-c(1,3)]
+colnames(RD_08)[2] <- "Att_run"
+colnames(RD_08)[3] <- "Yds_run"
+colnames(RD_08)[4] <- "TD_run"
+colnames(RD_08)[5] <- "Y.A_run"
+colnames(RD_08)[6] <- "Y.G_run"
+colnames(RD_08)[7] <- "EXP_run"
+
+#RD_02
+
+```
+
+```{r KPRA_08}
+KPRA_08 <- read.csv("data/2008/KPRA_08.csv", skip = 1, header = TRUE)
+KPRA_08 <- slice(KPRA_08, 1:(n() - 3))
+KPRA_08 <- KPRA_08[,-c(1,3)]
+colnames(KPRA_08)[2] <- "Ret_punt"
+colnames(KPRA_08)[3] <- "Yds_punt"
+colnames(KPRA_08)[4] <- "TD_punt"
+colnames(KPRA_08)[5] <- "Y.R_punt"
+colnames(KPRA_08)[6] <- "Ret_kick"
+colnames(KPRA_08)[7] <- "Yds_kick"
+colnames(KPRA_08)[8] <- "TD_kick"
+colnames(KPRA_08)[9] <- "Y.R_kick"
+
+#KPRA_08
+
+```
+
+```{r KA_08}
+KA_08 <- read.csv("data/2008/KA_08.csv", skip = 1, header = TRUE)
+KA_08 <- slice(KA_08, 1:(n() - 3))
+KA_08 <- KA_08[,-c(1,3)]
+
+
+colnames(KA_08)[4] <- "FG_pct"
+colnames(KA_08)[7] <- "XP_pct"
+
+KA_08$FG_pct <- gsub("%", "",KA_08$FG_pct)
+KA_08$XP_pct <- gsub("%", "",KA_08$XP_pct)
+
+KA_08$FG_pct <- as.numeric(KA_08$FG_pct)
+KA_08$XP_pct <- as.numeric(KA_08$XP_pct)
+
+#KA_08
+```
+
+```{r PA_08}
+PA_08 <- read.csv("data/2008/PA_08.csv", skip = 1, header = TRUE)
+PA_08 <- slice(PA_08, 1:(n() - 3))
+PA_08 <- PA_08[,-c(1,3,7)]
+colnames(PA_08)[3] <- "Yds_punt"
+colnames(PA_08)[4] <- "Y.P_punt"
+
+#PA_08
+```
+
+```{r SD_08}
+SD_08 <- read.csv("data/2008/SD_08.csv", header = TRUE)
+SD_08 <- slice(SD_08, 1:(n() - 3))
+SD_08 <- SD_08[,-c(1,3,4,5,15,16,17,18)]
+SD_08 <- replace(SD_08, is.na(SD_08), 0)
+
+#SD_08
+```
+
+```{r CA_08}
+CA_08 <- read.csv("data/2008/CA_08.csv",skip = 1, header = TRUE)
+CA_08 <- slice(CA_08, 1:(n() - 1))
+CA_08 <- CA_08[,-c(1,3)]
+
+
+CA_08$X3D. <- gsub("%", "",CA_08$X3D.)
+CA_08$X3D. <- as.numeric(CA_08$X3D.)
+
+CA_08$X4D. <- gsub("%", "",CA_08$X4D.)
+CA_08$X4D. <- as.numeric(CA_08$X4D.)
+
+CA_08$RZPct <- gsub("%", "",CA_08$RZPct)
+CA_08$RZPct <- as.numeric(CA_08$RZPct)
+
+colnames(CA_08)[4] <- "X3D_Pct"
+colnames(CA_08)[7] <- "X4D_Pct"
+
+#CA_08
+```
+
+```{r DAA_08}
+DAA_08 <- read.csv("data/2008/DAA_08.csv",skip = 1, header = TRUE)
+DAA_08 <- slice(DAA_08, 1:(n() - 1))
+DAA_08 <- DAA_08[,-c(1,3)]
+
+DAA_08$Start <- gsub("Own ", "",DAA_08$Start)
+DAA_08$Start <- as.numeric(DAA_08$Start)
+DAA_08$Start <- 100 - DAA_08$Start 
+
+
+DAA_08$Time <- sapply(strsplit(DAA_08$Time,":"),
+  function(x) {
+    x <- as.numeric(x)
+    x[1]+x[2]/60
+    }
+)
+
+colnames(DAA_08)[2] <- "Num_drives"
+colnames(DAA_08)[4] <- "Sc_pct"
+colnames(DAA_08)[5] <- "TO_pct"
+colnames(DAA_08)[6] <- "Plays_per_drive"
+colnames(DAA_08)[7] <- "Yds_per_drive"
+colnames(DAA_08)[8] <- "Start_pos"
+colnames(DAA_08)[9] <- "Time_per_drive"
+colnames(DAA_08)[10] <- "Pts_per_drive"
+
+#DAA_08
+```
+
+```{r WINS_08}
+AFC_08 <- read.csv("data/2008/AFC_08.csv", header = TRUE)
+NFC_08 <- read.csv("data/2008/NFC_08.csv", header = TRUE)
+
+
+AFC_08 <- AFC_08[,-c(2,3,4,6,7,8,9)]
+NFC_08 <- NFC_08[,-c(2,3,4,6,7,8,9)]
+
+Wins_08 <- rbind(AFC_08,NFC_08)
+Wins_08
+```
+
+```{r MERGE_08}
+Full_08 <- merge(TD_08, Wins_08, by.x = "Tm", by.y = "Tm")
+Full_08 <- merge(Full_08, PD_08, by.x = "Tm", by.y = "Tm")
+Full_08 <- merge(Full_08, RD_08, by.x = "Tm", by.y = "Tm")
+Full_08 <- merge(Full_08, KPRA_08, by.x = "Tm", by.y = "Tm")
+Full_08 <- merge(Full_08, PA_08, by.x = "Tm", by.y = "Tm")
+Full_08 <- merge(Full_08, KA_08, by.x = "Tm", by.y = "Tm")
+Full_08 <- merge(Full_08, SD_08, by.x = "Tm", by.y = "Tm")
+Full_08 <- merge(Full_08, CA_08, by.x = "Tm", by.y = "Tm")
+Full_08 <- merge(Full_08, DAA_08, by.x = "Tm", by.y = "Tm")
+
+Full_08
+```
+
+
+# 2009 Season
+
+```{r TD_09}
+TD_09 <- read.csv("data/2009/TD_09.csv",skip = 1, header = TRUE)
+
+TD_09 <- TD_09[,-c(1,11,12,13,14,15,16,18,19,20,21)]
+TD_09 <- slice(TD_09, 1:(n() - 3))
+
+colnames(TD_09)[4] <- "Yds_tot"
+colnames(TD_09)[9] <- "1stD_tot"
+colnames(TD_09)[10] <- "1stD_pass"
+colnames(TD_09)[11] <- "1stD_run"
+colnames(TD_09)[13] <- "Yds_pen"
+colnames(TD_09)[14] <- "1stD_pen"
+colnames(TD_09)[15] <- "Score_pct"
+colnames(TD_09)[16] <- "TO_pct"
+colnames(TD_09)[17] <- "EXP_tot"
+
+#TD_09
+```
+
+```{r PD_09}
+PD_09 <- read.csv("data/2009/PD_09.csv", header = TRUE)
+PD_09 <- slice(PD_09, 1:(n() - 3))
+PD_09 <- PD_09[,-c(1,3)]
+colnames(PD_09)[2] <- "Cmp_pass"
+colnames(PD_09)[3] <- "Att_pct"
+colnames(PD_09)[4] <- "Cmp_pct_pass"
+colnames(PD_09)[5] <- "Yds_pass"
+colnames(PD_09)[6] <- "TD_pass"
+colnames(PD_09)[7] <- "TD_pct_pass"
+colnames(PD_09)[10] <- "Int_pct"
+colnames(PD_09)[13] <- "Y.C_pass"
+colnames(PD_09)[14] <- "Y.G_pass"
+colnames(PD_09)[17] <- "Yds_Sk"
+colnames(PD_09)[19] <- "Sk_pct"
+colnames(PD_09)[22] <- "EXP_pass"
+
+#PD_09
+```
+
+```{r RD_09}
+RD_09 <- read.csv("data/2009/RD_09.csv", header = TRUE)
+RD_09 <- slice(RD_09, 1:(n() - 3))
+RD_09 <- RD_09[,-c(1,3)]
+colnames(RD_09)[2] <- "Att_run"
+colnames(RD_09)[3] <- "Yds_run"
+colnames(RD_09)[4] <- "TD_run"
+colnames(RD_09)[5] <- "Y.A_run"
+colnames(RD_09)[6] <- "Y.G_run"
+colnames(RD_09)[7] <- "EXP_run"
+
+#RD_02
+
+```
+
+```{r KPRA_09}
+KPRA_09 <- read.csv("data/2009/KPRA_09.csv", skip = 1, header = TRUE)
+KPRA_09 <- slice(KPRA_09, 1:(n() - 3))
+KPRA_09 <- KPRA_09[,-c(1,3)]
+colnames(KPRA_09)[2] <- "Ret_punt"
+colnames(KPRA_09)[3] <- "Yds_punt"
+colnames(KPRA_09)[4] <- "TD_punt"
+colnames(KPRA_09)[5] <- "Y.R_punt"
+colnames(KPRA_09)[6] <- "Ret_kick"
+colnames(KPRA_09)[7] <- "Yds_kick"
+colnames(KPRA_09)[8] <- "TD_kick"
+colnames(KPRA_09)[9] <- "Y.R_kick"
+
+#KPRA_09
+
+```
+
+```{r KA_09}
+KA_09 <- read.csv("data/2009/KA_09.csv", skip = 1, header = TRUE)
+KA_09 <- slice(KA_09, 1:(n() - 3))
+KA_09 <- KA_09[,-c(1,3)]
+
+
+colnames(KA_09)[4] <- "FG_pct"
+colnames(KA_09)[7] <- "XP_pct"
+
+KA_09$FG_pct <- gsub("%", "",KA_09$FG_pct)
+KA_09$XP_pct <- gsub("%", "",KA_09$XP_pct)
+
+KA_09$FG_pct <- as.numeric(KA_09$FG_pct)
+KA_09$XP_pct <- as.numeric(KA_09$XP_pct)
+
+#KA_09
+```
+
+```{r PA_09}
+PA_09 <- read.csv("data/2009/PA_09.csv", skip = 1, header = TRUE)
+PA_09 <- slice(PA_09, 1:(n() - 3))
+PA_09 <- PA_09[,-c(1,3,7)]
+colnames(PA_09)[3] <- "Yds_punt"
+colnames(PA_09)[4] <- "Y.P_punt"
+
+#PA_09
+```
+
+```{r SD_09}
+SD_09 <- read.csv("data/2009/SD_09.csv", header = TRUE)
+SD_09 <- slice(SD_09, 1:(n() - 3))
+SD_09 <- SD_09[,-c(1,3,4,5,15,16,17,18)]
+SD_09 <- replace(SD_09, is.na(SD_09), 0)
+
+#SD_09
+```
+
+```{r CA_09}
+CA_09 <- read.csv("data/2009/CA_09.csv",skip = 1, header = TRUE)
+CA_09 <- slice(CA_09, 1:(n() - 1))
+CA_09 <- CA_09[,-c(1,3)]
+
+
+CA_09$X3D. <- gsub("%", "",CA_09$X3D.)
+CA_09$X3D. <- as.numeric(CA_09$X3D.)
+
+CA_09$X4D. <- gsub("%", "",CA_09$X4D.)
+CA_09$X4D. <- as.numeric(CA_09$X4D.)
+
+CA_09$RZPct <- gsub("%", "",CA_09$RZPct)
+CA_09$RZPct <- as.numeric(CA_09$RZPct)
+
+colnames(CA_09)[4] <- "X3D_Pct"
+colnames(CA_09)[7] <- "X4D_Pct"
+
+#CA_09
+```
+
+```{r DAA_09}
+DAA_09 <- read.csv("data/2009/DAA_09.csv",skip = 1, header = TRUE)
+DAA_09 <- slice(DAA_09, 1:(n() - 1))
+DAA_09 <- DAA_09[,-c(1,3)]
+
+DAA_09$Start <- gsub("Own ", "",DAA_09$Start)
+DAA_09$Start <- as.numeric(DAA_09$Start)
+DAA_09$Start <- 100 - DAA_09$Start 
+
+
+DAA_09$Time <- sapply(strsplit(DAA_09$Time,":"),
+  function(x) {
+    x <- as.numeric(x)
+    x[1]+x[2]/60
+    }
+)
+
+colnames(DAA_09)[2] <- "Num_drives"
+colnames(DAA_09)[4] <- "Sc_pct"
+colnames(DAA_09)[5] <- "TO_pct"
+colnames(DAA_09)[6] <- "Plays_per_drive"
+colnames(DAA_09)[7] <- "Yds_per_drive"
+colnames(DAA_09)[8] <- "Start_pos"
+colnames(DAA_09)[9] <- "Time_per_drive"
+colnames(DAA_09)[10] <- "Pts_per_drive"
+
+#DAA_09
+```
+
+```{r WINS_09}
+AFC_09 <- read.csv("data/2009/AFC_09.csv", header = TRUE)
+NFC_09 <- read.csv("data/2009/NFC_09.csv", header = TRUE)
+
+
+AFC_09 <- AFC_09[,-c(2,3,5,6,7,8,9)]
+NFC_09 <- NFC_09[,-c(2,3,5,6,7,8,9)]
+
+Wins_09 <- rbind(AFC_09,NFC_09)
+Wins_09
+```
+
+```{r MERGE_09}
+Full_09 <- merge(TD_09, Wins_09, by.x = "Tm", by.y = "Tm")
+Full_09 <- merge(Full_09, PD_09, by.x = "Tm", by.y = "Tm")
+Full_09 <- merge(Full_09, RD_09, by.x = "Tm", by.y = "Tm")
+Full_09 <- merge(Full_09, KPRA_09, by.x = "Tm", by.y = "Tm")
+Full_09 <- merge(Full_09, PA_09, by.x = "Tm", by.y = "Tm")
+Full_09 <- merge(Full_09, KA_09, by.x = "Tm", by.y = "Tm")
+Full_09 <- merge(Full_09, SD_09, by.x = "Tm", by.y = "Tm")
+Full_09 <- merge(Full_09, CA_09, by.x = "Tm", by.y = "Tm")
+Full_09 <- merge(Full_09, DAA_09, by.x = "Tm", by.y = "Tm")
+
+Full_09
+```
+
+
+
+# 2010 Season
+
+```{r TD_10}
+TD_10 <- read.csv("data/2010/TD_10.csv",skip = 1, header = TRUE)
+
+TD_10 <- TD_10[,-c(1,11,12,13,14,15,16,18,19,20,21)]
+TD_10 <- slice(TD_10, 1:(n() - 3))
+
+colnames(TD_10)[4] <- "Yds_tot"
+colnames(TD_10)[9] <- "1stD_tot"
+colnames(TD_10)[10] <- "1stD_pass"
+colnames(TD_10)[11] <- "1stD_run"
+colnames(TD_10)[13] <- "Yds_pen"
+colnames(TD_10)[14] <- "1stD_pen"
+colnames(TD_10)[15] <- "Score_pct"
+colnames(TD_10)[16] <- "TO_pct"
+colnames(TD_10)[17] <- "EXP_tot"
+
+#TD_10
+```
+
+```{r PD_10}
+PD_10 <- read.csv("data/2010/PD_10.csv", header = TRUE)
+PD_10 <- slice(PD_10, 1:(n() - 3))
+PD_10 <- PD_10[,-c(1,3)]
+colnames(PD_10)[2] <- "Cmp_pass"
+colnames(PD_10)[3] <- "Att_pct"
+colnames(PD_10)[4] <- "Cmp_pct_pass"
+colnames(PD_10)[5] <- "Yds_pass"
+colnames(PD_10)[6] <- "TD_pass"
+colnames(PD_10)[7] <- "TD_pct_pass"
+colnames(PD_10)[10] <- "Int_pct"
+colnames(PD_10)[13] <- "Y.C_pass"
+colnames(PD_10)[14] <- "Y.G_pass"
+colnames(PD_10)[17] <- "Yds_Sk"
+colnames(PD_10)[19] <- "Sk_pct"
+colnames(PD_10)[22] <- "EXP_pass"
+
+#PD_10
+```
+
+```{r RD_10}
+RD_10 <- read.csv("data/2010/RD_10.csv", header = TRUE)
+RD_10 <- slice(RD_10, 1:(n() - 3))
+RD_10 <- RD_10[,-c(1,3)]
+colnames(RD_10)[2] <- "Att_run"
+colnames(RD_10)[3] <- "Yds_run"
+colnames(RD_10)[4] <- "TD_run"
+colnames(RD_10)[5] <- "Y.A_run"
+colnames(RD_10)[6] <- "Y.G_run"
+colnames(RD_10)[7] <- "EXP_run"
+
+#RD_02
+
+```
+
+```{r KPRA_10}
+KPRA_10 <- read.csv("data/2010/KPRA_10.csv", skip = 1, header = TRUE)
+KPRA_10 <- slice(KPRA_10, 1:(n() - 3))
+KPRA_10 <- KPRA_10[,-c(1,3)]
+colnames(KPRA_10)[2] <- "Ret_punt"
+colnames(KPRA_10)[3] <- "Yds_punt"
+colnames(KPRA_10)[4] <- "TD_punt"
+colnames(KPRA_10)[5] <- "Y.R_punt"
+colnames(KPRA_10)[6] <- "Ret_kick"
+colnames(KPRA_10)[7] <- "Yds_kick"
+colnames(KPRA_10)[8] <- "TD_kick"
+colnames(KPRA_10)[9] <- "Y.R_kick"
+
+#KPRA_10
+
+```
+
+```{r KA_10}
+KA_10 <- read.csv("data/2010/KA_10.csv", skip = 1, header = TRUE)
+KA_10 <- slice(KA_10, 1:(n() - 3))
+KA_10 <- KA_10[,-c(1,3)]
+
+
+colnames(KA_10)[4] <- "FG_pct"
+colnames(KA_10)[7] <- "XP_pct"
+
+KA_10$FG_pct <- gsub("%", "",KA_10$FG_pct)
+KA_10$XP_pct <- gsub("%", "",KA_10$XP_pct)
+
+KA_10$FG_pct <- as.numeric(KA_10$FG_pct)
+KA_10$XP_pct <- as.numeric(KA_10$XP_pct)
+
+#KA_10
+```
+
+```{r PA_10}
+PA_10 <- read.csv("data/2010/PA_10.csv", skip = 1, header = TRUE)
+PA_10 <- slice(PA_10, 1:(n() - 3))
+PA_10 <- PA_10[,-c(1,3,7)]
+colnames(PA_10)[3] <- "Yds_punt"
+colnames(PA_10)[4] <- "Y.P_punt"
+
+#PA_10
+```
+
+```{r SD_10}
+SD_10 <- read.csv("data/2010/SD_10.csv", header = TRUE)
+SD_10 <- slice(SD_10, 1:(n() - 3))
+SD_10 <- SD_10[,-c(1,3,4,5,15,16,17,18)]
+SD_10 <- replace(SD_10, is.na(SD_10), 0)
+
+#SD_10
+```
+
+```{r CA_10}
+CA_10 <- read.csv("data/2010/CA_10.csv",skip = 1, header = TRUE)
+CA_10 <- slice(CA_10, 1:(n() - 1))
+CA_10 <- CA_10[,-c(1,3)]
+
+
+CA_10$X3D. <- gsub("%", "",CA_10$X3D.)
+CA_10$X3D. <- as.numeric(CA_10$X3D.)
+
+CA_10$X4D. <- gsub("%", "",CA_10$X4D.)
+CA_10$X4D. <- as.numeric(CA_10$X4D.)
+
+CA_10$RZPct <- gsub("%", "",CA_10$RZPct)
+CA_10$RZPct <- as.numeric(CA_10$RZPct)
+
+colnames(CA_10)[4] <- "X3D_Pct"
+colnames(CA_10)[7] <- "X4D_Pct"
+
+#CA_10
+```
+
+```{r DAA_10}
+DAA_10 <- read.csv("data/2010/DAA_10.csv",skip = 1, header = TRUE)
+DAA_10 <- slice(DAA_10, 1:(n() - 1))
+DAA_10 <- DAA_10[,-c(1,3)]
+
+DAA_10$Start <- gsub("Own ", "",DAA_10$Start)
+DAA_10$Start <- as.numeric(DAA_10$Start)
+DAA_10$Start <- 100 - DAA_10$Start 
+
+
+DAA_10$Time <- sapply(strsplit(DAA_10$Time,":"),
+  function(x) {
+    x <- as.numeric(x)
+    x[1]+x[2]/60
+    }
+)
+
+colnames(DAA_10)[2] <- "Num_drives"
+colnames(DAA_10)[4] <- "Sc_pct"
+colnames(DAA_10)[5] <- "TO_pct"
+colnames(DAA_10)[6] <- "Plays_per_drive"
+colnames(DAA_10)[7] <- "Yds_per_drive"
+colnames(DAA_10)[8] <- "Start_pos"
+colnames(DAA_10)[9] <- "Time_per_drive"
+colnames(DAA_10)[10] <- "Pts_per_drive"
+
+#DAA_10
+```
+
+```{r WINS_10}
+AFC_10 <- read.csv("data/2010/AFC_10.csv", header = TRUE)
+NFC_10 <- read.csv("data/2010/NFC_10.csv", header = TRUE)
+
+
+AFC_10 <- AFC_10[,-c(2,3,5,6,7,8,9)]
+NFC_10 <- NFC_10[,-c(2,3,5,6,7,8,9)]
+
+Wins_10 <- rbind(AFC_10,NFC_10)
+Wins_10
+```
+
+```{r MERGE_10}
+Full_10 <- merge(TD_10, Wins_10, by.x = "Tm", by.y = "Tm")
+Full_10 <- merge(Full_10, PD_10, by.x = "Tm", by.y = "Tm")
+Full_10 <- merge(Full_10, RD_10, by.x = "Tm", by.y = "Tm")
+Full_10 <- merge(Full_10, KPRA_10, by.x = "Tm", by.y = "Tm")
+Full_10 <- merge(Full_10, PA_10, by.x = "Tm", by.y = "Tm")
+Full_10 <- merge(Full_10, KA_10, by.x = "Tm", by.y = "Tm")
+Full_10 <- merge(Full_10, SD_10, by.x = "Tm", by.y = "Tm")
+Full_10 <- merge(Full_10, CA_10, by.x = "Tm", by.y = "Tm")
+Full_10 <- merge(Full_10, DAA_10, by.x = "Tm", by.y = "Tm")
+
+Full_10
+```
+
+
+
+# 2011 Season
+
+```{r TD_11}
+TD_11 <- read.csv("data/2011/TD_11.csv",skip = 1, header = TRUE)
+
+TD_11 <- TD_11[,-c(1,11,12,13,14,15,16,18,19,20,21)]
+TD_11 <- slice(TD_11, 1:(n() - 3))
+
+colnames(TD_11)[4] <- "Yds_tot"
+colnames(TD_11)[9] <- "1stD_tot"
+colnames(TD_11)[10] <- "1stD_pass"
+colnames(TD_11)[11] <- "1stD_run"
+colnames(TD_11)[13] <- "Yds_pen"
+colnames(TD_11)[14] <- "1stD_pen"
+colnames(TD_11)[15] <- "Score_pct"
+colnames(TD_11)[16] <- "TO_pct"
+colnames(TD_11)[17] <- "EXP_tot"
+
+#TD_11
+```
+
+```{r PD_11}
+PD_11 <- read.csv("data/2011/PD_11.csv", header = TRUE)
+PD_11 <- slice(PD_11, 1:(n() - 3))
+PD_11 <- PD_11[,-c(1,3)]
+colnames(PD_11)[2] <- "Cmp_pass"
+colnames(PD_11)[3] <- "Att_pct"
+colnames(PD_11)[4] <- "Cmp_pct_pass"
+colnames(PD_11)[5] <- "Yds_pass"
+colnames(PD_11)[6] <- "TD_pass"
+colnames(PD_11)[7] <- "TD_pct_pass"
+colnames(PD_11)[10] <- "Int_pct"
+colnames(PD_11)[13] <- "Y.C_pass"
+colnames(PD_11)[14] <- "Y.G_pass"
+colnames(PD_11)[17] <- "Yds_Sk"
+colnames(PD_11)[19] <- "Sk_pct"
+colnames(PD_11)[22] <- "EXP_pass"
+
+#PD_11
+```
+
+```{r RD_11}
+RD_11 <- read.csv("data/2011/RD_11.csv", header = TRUE)
+RD_11 <- slice(RD_11, 1:(n() - 3))
+RD_11 <- RD_11[,-c(1,3)]
+colnames(RD_11)[2] <- "Att_run"
+colnames(RD_11)[3] <- "Yds_run"
+colnames(RD_11)[4] <- "TD_run"
+colnames(RD_11)[5] <- "Y.A_run"
+colnames(RD_11)[6] <- "Y.G_run"
+colnames(RD_11)[7] <- "EXP_run"
+
+#RD_02
+
+```
+
+```{r KPRA_11}
+KPRA_11 <- read.csv("data/2011/KPRA_11.csv", skip = 1, header = TRUE)
+KPRA_11 <- slice(KPRA_11, 1:(n() - 3))
+KPRA_11 <- KPRA_11[,-c(1,3)]
+colnames(KPRA_11)[2] <- "Ret_punt"
+colnames(KPRA_11)[3] <- "Yds_punt"
+colnames(KPRA_11)[4] <- "TD_punt"
+colnames(KPRA_11)[5] <- "Y.R_punt"
+colnames(KPRA_11)[6] <- "Ret_kick"
+colnames(KPRA_11)[7] <- "Yds_kick"
+colnames(KPRA_11)[8] <- "TD_kick"
+colnames(KPRA_11)[9] <- "Y.R_kick"
+
+#KPRA_11
+
+```
+
+```{r KA_11}
+KA_11 <- read.csv("data/2011/KA_11.csv", skip = 1, header = TRUE)
+KA_11 <- slice(KA_11, 1:(n() - 3))
+KA_11 <- KA_11[,-c(1,3)]
+
+
+colnames(KA_11)[4] <- "FG_pct"
+colnames(KA_11)[7] <- "XP_pct"
+
+KA_11$FG_pct <- gsub("%", "",KA_11$FG_pct)
+KA_11$XP_pct <- gsub("%", "",KA_11$XP_pct)
+
+KA_11$FG_pct <- as.numeric(KA_11$FG_pct)
+KA_11$XP_pct <- as.numeric(KA_11$XP_pct)
+
+#KA_11
+```
+
+```{r PA_11}
+PA_11 <- read.csv("data/2011/PA_11.csv", skip = 1, header = TRUE)
+PA_11 <- slice(PA_11, 1:(n() - 3))
+PA_11 <- PA_11[,-c(1,3,7)]
+colnames(PA_11)[3] <- "Yds_punt"
+colnames(PA_11)[4] <- "Y.P_punt"
+
+#PA_11
+```
+
+```{r SD_11}
+SD_11 <- read.csv("data/2011/SD_11.csv", header = TRUE)
+SD_11 <- slice(SD_11, 1:(n() - 3))
+SD_11 <- SD_11[,-c(1,3,4,5,15,16,17,18)]
+SD_11 <- replace(SD_11, is.na(SD_11), 0)
+
+#SD_11
+```
+
+```{r CA_11}
+CA_11 <- read.csv("data/2011/CA_11.csv",skip = 1, header = TRUE)
+CA_11 <- slice(CA_11, 1:(n() - 1))
+CA_11 <- CA_11[,-c(1,3)]
+
+
+CA_11$X3D. <- gsub("%", "",CA_11$X3D.)
+CA_11$X3D. <- as.numeric(CA_11$X3D.)
+
+CA_11$X4D. <- gsub("%", "",CA_11$X4D.)
+CA_11$X4D. <- as.numeric(CA_11$X4D.)
+
+CA_11$RZPct <- gsub("%", "",CA_11$RZPct)
+CA_11$RZPct <- as.numeric(CA_11$RZPct)
+
+colnames(CA_11)[4] <- "X3D_Pct"
+colnames(CA_11)[7] <- "X4D_Pct"
+
+#CA_11
+```
+
+```{r DAA_11}
+DAA_11 <- read.csv("data/2011/DAA_11.csv",skip = 1, header = TRUE)
+DAA_11 <- slice(DAA_11, 1:(n() - 1))
+DAA_11 <- DAA_11[,-c(1,3)]
+
+DAA_11$Start <- gsub("Own ", "",DAA_11$Start)
+DAA_11$Start <- as.numeric(DAA_11$Start)
+DAA_11$Start <- 100 - DAA_11$Start 
+
+
+DAA_11$Time <- sapply(strsplit(DAA_11$Time,":"),
+  function(x) {
+    x <- as.numeric(x)
+    x[1]+x[2]/60
+    }
+)
+
+colnames(DAA_11)[2] <- "Num_drives"
+colnames(DAA_11)[4] <- "Sc_pct"
+colnames(DAA_11)[5] <- "TO_pct"
+colnames(DAA_11)[6] <- "Plays_per_drive"
+colnames(DAA_11)[7] <- "Yds_per_drive"
+colnames(DAA_11)[8] <- "Start_pos"
+colnames(DAA_11)[9] <- "Time_per_drive"
+colnames(DAA_11)[10] <- "Pts_per_drive"
+
+#DAA_11
+```
+
+```{r WINS_11}
+AFC_11 <- read.csv("data/2011/AFC_11.csv", header = TRUE)
+NFC_11 <- read.csv("data/2011/NFC_11.csv", header = TRUE)
+
+
+AFC_11 <- AFC_11[,-c(2,3,5,6,7,8,9)]
+NFC_11 <- NFC_11[,-c(2,3,5,6,7,8,9)]
+
+Wins_11 <- rbind(AFC_11,NFC_11)
+Wins_11
+```
+
+```{r MERGE_11}
+Full_11 <- merge(TD_11, Wins_11, by.x = "Tm", by.y = "Tm")
+Full_11 <- merge(Full_11, PD_11, by.x = "Tm", by.y = "Tm")
+Full_11 <- merge(Full_11, RD_11, by.x = "Tm", by.y = "Tm")
+Full_11 <- merge(Full_11, KPRA_11, by.x = "Tm", by.y = "Tm")
+Full_11 <- merge(Full_11, PA_11, by.x = "Tm", by.y = "Tm")
+Full_11 <- merge(Full_11, KA_11, by.x = "Tm", by.y = "Tm")
+Full_11 <- merge(Full_11, SD_11, by.x = "Tm", by.y = "Tm")
+Full_11 <- merge(Full_11, CA_11, by.x = "Tm", by.y = "Tm")
+Full_11 <- merge(Full_11, DAA_11, by.x = "Tm", by.y = "Tm")
+
+Full_11
+```
+
+
+
+# 2012 Season
+
+```{r TD_12}
+TD_12 <- read.csv("data/2012/TD_12.csv",skip = 1, header = TRUE)
+
+TD_12 <- TD_12[,-c(1,11,12,13,14,15,16,18,19,20,21)]
+TD_12 <- slice(TD_12, 1:(n() - 3))
+
+colnames(TD_12)[4] <- "Yds_tot"
+colnames(TD_12)[9] <- "1stD_tot"
+colnames(TD_12)[10] <- "1stD_pass"
+colnames(TD_12)[11] <- "1stD_run"
+colnames(TD_12)[13] <- "Yds_pen"
+colnames(TD_12)[14] <- "1stD_pen"
+colnames(TD_12)[15] <- "Score_pct"
+colnames(TD_12)[16] <- "TO_pct"
+colnames(TD_12)[17] <- "EXP_tot"
+
+#TD_12
+```
+
+```{r PD_12}
+PD_12 <- read.csv("data/2012/PD_12.csv", header = TRUE)
+PD_12 <- slice(PD_12, 1:(n() - 3))
+PD_12 <- PD_12[,-c(1,3)]
+colnames(PD_12)[2] <- "Cmp_pass"
+colnames(PD_12)[3] <- "Att_pct"
+colnames(PD_12)[4] <- "Cmp_pct_pass"
+colnames(PD_12)[5] <- "Yds_pass"
+colnames(PD_12)[6] <- "TD_pass"
+colnames(PD_12)[7] <- "TD_pct_pass"
+colnames(PD_12)[10] <- "Int_pct"
+colnames(PD_12)[13] <- "Y.C_pass"
+colnames(PD_12)[14] <- "Y.G_pass"
+colnames(PD_12)[17] <- "Yds_Sk"
+colnames(PD_12)[19] <- "Sk_pct"
+colnames(PD_12)[22] <- "EXP_pass"
+
+#PD_12
+```
+
+```{r RD_12}
+RD_12 <- read.csv("data/2012/RD_12.csv", header = TRUE)
+RD_12 <- slice(RD_12, 1:(n() - 3))
+RD_12 <- RD_12[,-c(1,3)]
+colnames(RD_12)[2] <- "Att_run"
+colnames(RD_12)[3] <- "Yds_run"
+colnames(RD_12)[4] <- "TD_run"
+colnames(RD_12)[5] <- "Y.A_run"
+colnames(RD_12)[6] <- "Y.G_run"
+colnames(RD_12)[7] <- "EXP_run"
+
+#RD_02
+
+```
+
+```{r KPRA_12}
+KPRA_12 <- read.csv("data/2012/KPRA_12.csv", skip = 1, header = TRUE)
+KPRA_12 <- slice(KPRA_12, 1:(n() - 3))
+KPRA_12 <- KPRA_12[,-c(1,3)]
+colnames(KPRA_12)[2] <- "Ret_punt"
+colnames(KPRA_12)[3] <- "Yds_punt"
+colnames(KPRA_12)[4] <- "TD_punt"
+colnames(KPRA_12)[5] <- "Y.R_punt"
+colnames(KPRA_12)[6] <- "Ret_kick"
+colnames(KPRA_12)[7] <- "Yds_kick"
+colnames(KPRA_12)[8] <- "TD_kick"
+colnames(KPRA_12)[9] <- "Y.R_kick"
+
+#KPRA_12
+
+```
+
+```{r KA_12}
+KA_12 <- read.csv("data/2012/KA_12.csv", skip = 1, header = TRUE)
+KA_12 <- slice(KA_12, 1:(n() - 3))
+KA_12 <- KA_12[,-c(1,3)]
+
+
+colnames(KA_12)[4] <- "FG_pct"
+colnames(KA_12)[7] <- "XP_pct"
+
+KA_12$FG_pct <- gsub("%", "",KA_12$FG_pct)
+KA_12$XP_pct <- gsub("%", "",KA_12$XP_pct)
+
+KA_12$FG_pct <- as.numeric(KA_12$FG_pct)
+KA_12$XP_pct <- as.numeric(KA_12$XP_pct)
+
+#KA_12
+```
+
+```{r PA_12}
+PA_12 <- read.csv("data/2012/PA_12.csv", skip = 1, header = TRUE)
+PA_12 <- slice(PA_12, 1:(n() - 3))
+PA_12 <- PA_12[,-c(1,3,7)]
+colnames(PA_12)[3] <- "Yds_punt"
+colnames(PA_12)[4] <- "Y.P_punt"
+
+#PA_12
+```
+
+```{r SD_12}
+SD_12 <- read.csv("data/2012/SD_12.csv", header = TRUE)
+SD_12 <- slice(SD_12, 1:(n() - 3))
+SD_12 <- SD_12[,-c(1,3,4,5,15,16,17,18)]
+SD_12 <- replace(SD_12, is.na(SD_12), 0)
+
+#SD_12
+```
+
+```{r CA_12}
+CA_12 <- read.csv("data/2012/CA_12.csv",skip = 1, header = TRUE)
+CA_12 <- slice(CA_12, 1:(n() - 1))
+CA_12 <- CA_12[,-c(1,3)]
+
+
+CA_12$X3D. <- gsub("%", "",CA_12$X3D.)
+CA_12$X3D. <- as.numeric(CA_12$X3D.)
+
+CA_12$X4D. <- gsub("%", "",CA_12$X4D.)
+CA_12$X4D. <- as.numeric(CA_12$X4D.)
+
+CA_12$RZPct <- gsub("%", "",CA_12$RZPct)
+CA_12$RZPct <- as.numeric(CA_12$RZPct)
+
+colnames(CA_12)[4] <- "X3D_Pct"
+colnames(CA_12)[7] <- "X4D_Pct"
+
+#CA_12
+```
+
+```{r DAA_12}
+DAA_12 <- read.csv("data/2012/DAA_12.csv",skip = 1, header = TRUE)
+DAA_12 <- slice(DAA_12, 1:(n() - 1))
+DAA_12 <- DAA_12[,-c(1,3)]
+
+DAA_12$Start <- gsub("Own ", "",DAA_12$Start)
+DAA_12$Start <- as.numeric(DAA_12$Start)
+DAA_12$Start <- 100 - DAA_12$Start 
+
+
+DAA_12$Time <- sapply(strsplit(DAA_12$Time,":"),
+  function(x) {
+    x <- as.numeric(x)
+    x[1]+x[2]/60
+    }
+)
+
+colnames(DAA_12)[2] <- "Num_drives"
+colnames(DAA_12)[4] <- "Sc_pct"
+colnames(DAA_12)[5] <- "TO_pct"
+colnames(DAA_12)[6] <- "Plays_per_drive"
+colnames(DAA_12)[7] <- "Yds_per_drive"
+colnames(DAA_12)[8] <- "Start_pos"
+colnames(DAA_12)[9] <- "Time_per_drive"
+colnames(DAA_12)[10] <- "Pts_per_drive"
+
+#DAA_12
+```
+
+```{r WINS_12}
+AFC_12 <- read.csv("data/2012/AFC_12.csv", header = TRUE)
+NFC_12 <- read.csv("data/2012/NFC_12.csv", header = TRUE)
+
+
+AFC_12 <- AFC_12[,-c(2,3,4,6,7,8,9)]
+NFC_12 <- NFC_12[,-c(2,3,4,6,7,8,9)]
+
+Wins_12 <- rbind(AFC_12,NFC_12)
+Wins_12
+```
+
+```{r MERGE_12}
+Full_12 <- merge(TD_12, Wins_12, by.x = "Tm", by.y = "Tm")
+Full_12 <- merge(Full_12, PD_12, by.x = "Tm", by.y = "Tm")
+Full_12 <- merge(Full_12, RD_12, by.x = "Tm", by.y = "Tm")
+Full_12 <- merge(Full_12, KPRA_12, by.x = "Tm", by.y = "Tm")
+Full_12 <- merge(Full_12, PA_12, by.x = "Tm", by.y = "Tm")
+Full_12 <- merge(Full_12, KA_12, by.x = "Tm", by.y = "Tm")
+Full_12 <- merge(Full_12, SD_12, by.x = "Tm", by.y = "Tm")
+Full_12 <- merge(Full_12, CA_12, by.x = "Tm", by.y = "Tm")
+Full_12 <- merge(Full_12, DAA_12, by.x = "Tm", by.y = "Tm")
+
+Full_12
+```
+
+
+
+# 2013 Season
+
+```{r TD_13}
+TD_13 <- read.csv("data/2013/TD_13.csv",skip = 1, header = TRUE)
+
+TD_13 <- TD_13[,-c(1,11,12,13,14,15,16,18,19,20,21)]
+TD_13 <- slice(TD_13, 1:(n() - 3))
+
+colnames(TD_13)[4] <- "Yds_tot"
+colnames(TD_13)[9] <- "1stD_tot"
+colnames(TD_13)[10] <- "1stD_pass"
+colnames(TD_13)[11] <- "1stD_run"
+colnames(TD_13)[13] <- "Yds_pen"
+colnames(TD_13)[14] <- "1stD_pen"
+colnames(TD_13)[15] <- "Score_pct"
+colnames(TD_13)[16] <- "TO_pct"
+colnames(TD_13)[17] <- "EXP_tot"
+
+#TD_13
+```
+
+```{r PD_13}
+PD_13 <- read.csv("data/2013/PD_13.csv", header = TRUE)
+PD_13 <- slice(PD_13, 1:(n() - 3))
+PD_13 <- PD_13[,-c(1,3)]
+colnames(PD_13)[2] <- "Cmp_pass"
+colnames(PD_13)[3] <- "Att_pct"
+colnames(PD_13)[4] <- "Cmp_pct_pass"
+colnames(PD_13)[5] <- "Yds_pass"
+colnames(PD_13)[6] <- "TD_pass"
+colnames(PD_13)[7] <- "TD_pct_pass"
+colnames(PD_13)[10] <- "Int_pct"
+colnames(PD_13)[13] <- "Y.C_pass"
+colnames(PD_13)[14] <- "Y.G_pass"
+colnames(PD_13)[17] <- "Yds_Sk"
+colnames(PD_13)[19] <- "Sk_pct"
+colnames(PD_13)[22] <- "EXP_pass"
+
+#PD_13
+```
+
+```{r RD_13}
+RD_13 <- read.csv("data/2013/RD_13.csv", header = TRUE)
+RD_13 <- slice(RD_13, 1:(n() - 3))
+RD_13 <- RD_13[,-c(1,3)]
+colnames(RD_13)[2] <- "Att_run"
+colnames(RD_13)[3] <- "Yds_run"
+colnames(RD_13)[4] <- "TD_run"
+colnames(RD_13)[5] <- "Y.A_run"
+colnames(RD_13)[6] <- "Y.G_run"
+colnames(RD_13)[7] <- "EXP_run"
+
+#RD_02
+
+```
+
+```{r KPRA_13}
+KPRA_13 <- read.csv("data/2013/KPRA_13.csv", skip = 1, header = TRUE)
+KPRA_13 <- slice(KPRA_13, 1:(n() - 3))
+KPRA_13 <- KPRA_13[,-c(1,3)]
+colnames(KPRA_13)[2] <- "Ret_punt"
+colnames(KPRA_13)[3] <- "Yds_punt"
+colnames(KPRA_13)[4] <- "TD_punt"
+colnames(KPRA_13)[5] <- "Y.R_punt"
+colnames(KPRA_13)[6] <- "Ret_kick"
+colnames(KPRA_13)[7] <- "Yds_kick"
+colnames(KPRA_13)[8] <- "TD_kick"
+colnames(KPRA_13)[9] <- "Y.R_kick"
+
+#KPRA_13
+
+```
+
+```{r KA_13}
+KA_13 <- read.csv("data/2013/KA_13.csv", skip = 1, header = TRUE)
+KA_13 <- slice(KA_13, 1:(n() - 3))
+KA_13 <- KA_13[,-c(1,3)]
+
+
+colnames(KA_13)[4] <- "FG_pct"
+colnames(KA_13)[7] <- "XP_pct"
+
+KA_13$FG_pct <- gsub("%", "",KA_13$FG_pct)
+KA_13$XP_pct <- gsub("%", "",KA_13$XP_pct)
+
+KA_13$FG_pct <- as.numeric(KA_13$FG_pct)
+KA_13$XP_pct <- as.numeric(KA_13$XP_pct)
+
+#KA_13
+```
+
+```{r PA_13}
+PA_13 <- read.csv("data/2013/PA_13.csv", skip = 1, header = TRUE)
+PA_13 <- slice(PA_13, 1:(n() - 3))
+PA_13 <- PA_13[,-c(1,3,7)]
+colnames(PA_13)[3] <- "Yds_punt"
+colnames(PA_13)[4] <- "Y.P_punt"
+
+#PA_13
+```
+
+```{r SD_13}
+SD_13 <- read.csv("data/2013/SD_13.csv", header = TRUE)
+SD_13 <- slice(SD_13, 1:(n() - 3))
+SD_13 <- SD_13[,-c(1,3,4,5,15,16,17,18)]
+SD_13 <- replace(SD_13, is.na(SD_13), 0)
+
+#SD_13
+```
+
+```{r CA_13}
+CA_13 <- read.csv("data/2013/CA_13.csv",skip = 1, header = TRUE)
+CA_13 <- slice(CA_13, 1:(n() - 1))
+CA_13 <- CA_13[,-c(1,3)]
+
+
+CA_13$X3D. <- gsub("%", "",CA_13$X3D.)
+CA_13$X3D. <- as.numeric(CA_13$X3D.)
+
+CA_13$X4D. <- gsub("%", "",CA_13$X4D.)
+CA_13$X4D. <- as.numeric(CA_13$X4D.)
+
+CA_13$RZPct <- gsub("%", "",CA_13$RZPct)
+CA_13$RZPct <- as.numeric(CA_13$RZPct)
+
+colnames(CA_13)[4] <- "X3D_Pct"
+colnames(CA_13)[7] <- "X4D_Pct"
+
+#CA_13
+```
+
+```{r DAA_13}
+DAA_13 <- read.csv("data/2013/DAA_13.csv",skip = 1, header = TRUE)
+DAA_13 <- slice(DAA_13, 1:(n() - 1))
+DAA_13 <- DAA_13[,-c(1,3)]
+
+DAA_13$Start <- gsub("Own ", "",DAA_13$Start)
+DAA_13$Start <- as.numeric(DAA_13$Start)
+DAA_13$Start <- 100 - DAA_13$Start 
+
+
+DAA_13$Time <- sapply(strsplit(DAA_13$Time,":"),
+  function(x) {
+    x <- as.numeric(x)
+    x[1]+x[2]/60
+    }
+)
+
+colnames(DAA_13)[2] <- "Num_drives"
+colnames(DAA_13)[4] <- "Sc_pct"
+colnames(DAA_13)[5] <- "TO_pct"
+colnames(DAA_13)[6] <- "Plays_per_drive"
+colnames(DAA_13)[7] <- "Yds_per_drive"
+colnames(DAA_13)[8] <- "Start_pos"
+colnames(DAA_13)[9] <- "Time_per_drive"
+colnames(DAA_13)[10] <- "Pts_per_drive"
+
+#DAA_13
+```
+
+```{r WINS_13}
+AFC_13 <- read.csv("data/2013/AFC_13.csv", header = TRUE)
+NFC_13 <- read.csv("data/2013/NFC_13.csv", header = TRUE)
+
+
+AFC_13 <- AFC_13[,-c(2,3,4,6,7,8,9)]
+NFC_13 <- NFC_13[,-c(2,3,4,6,7,8,9)]
+
+Wins_13 <- rbind(AFC_13,NFC_13)
+Wins_13
+```
+
+```{r MERGE_13}
+Full_13 <- merge(TD_13, Wins_13, by.x = "Tm", by.y = "Tm")
+Full_13 <- merge(Full_13, PD_13, by.x = "Tm", by.y = "Tm")
+Full_13 <- merge(Full_13, RD_13, by.x = "Tm", by.y = "Tm")
+Full_13 <- merge(Full_13, KPRA_13, by.x = "Tm", by.y = "Tm")
+Full_13 <- merge(Full_13, PA_13, by.x = "Tm", by.y = "Tm")
+Full_13 <- merge(Full_13, KA_13, by.x = "Tm", by.y = "Tm")
+Full_13 <- merge(Full_13, SD_13, by.x = "Tm", by.y = "Tm")
+Full_13 <- merge(Full_13, CA_13, by.x = "Tm", by.y = "Tm")
+Full_13 <- merge(Full_13, DAA_13, by.x = "Tm", by.y = "Tm")
+
+Full_13
+```
+
+
+
+# 2014 Season
+
+```{r TD_14}
+TD_14 <- read.csv("data/2014/TD_14.csv",skip = 1, header = TRUE)
+
+TD_14 <- TD_14[,-c(1,11,12,13,14,15,16,18,19,20,21)]
+TD_14 <- slice(TD_14, 1:(n() - 3))
+
+colnames(TD_14)[4] <- "Yds_tot"
+colnames(TD_14)[9] <- "1stD_tot"
+colnames(TD_14)[10] <- "1stD_pass"
+colnames(TD_14)[11] <- "1stD_run"
+colnames(TD_14)[13] <- "Yds_pen"
+colnames(TD_14)[14] <- "1stD_pen"
+colnames(TD_14)[15] <- "Score_pct"
+colnames(TD_14)[16] <- "TO_pct"
+colnames(TD_14)[17] <- "EXP_tot"
+
+#TD_14
+```
+
+```{r PD_14}
+PD_14 <- read.csv("data/2014/PD_14.csv", header = TRUE)
+PD_14 <- slice(PD_14, 1:(n() - 3))
+PD_14 <- PD_14[,-c(1,3)]
+colnames(PD_14)[2] <- "Cmp_pass"
+colnames(PD_14)[3] <- "Att_pct"
+colnames(PD_14)[4] <- "Cmp_pct_pass"
+colnames(PD_14)[5] <- "Yds_pass"
+colnames(PD_14)[6] <- "TD_pass"
+colnames(PD_14)[7] <- "TD_pct_pass"
+colnames(PD_14)[10] <- "Int_pct"
+colnames(PD_14)[13] <- "Y.C_pass"
+colnames(PD_14)[14] <- "Y.G_pass"
+colnames(PD_14)[17] <- "Yds_Sk"
+colnames(PD_14)[19] <- "Sk_pct"
+colnames(PD_14)[22] <- "EXP_pass"
+
+#PD_14
+```
+
+```{r RD_14}
+RD_14 <- read.csv("data/2014/RD_14.csv", header = TRUE)
+RD_14 <- slice(RD_14, 1:(n() - 3))
+RD_14 <- RD_14[,-c(1,3)]
+colnames(RD_14)[2] <- "Att_run"
+colnames(RD_14)[3] <- "Yds_run"
+colnames(RD_14)[4] <- "TD_run"
+colnames(RD_14)[5] <- "Y.A_run"
+colnames(RD_14)[6] <- "Y.G_run"
+colnames(RD_14)[7] <- "EXP_run"
+
+#RD_02
+
+```
+
+```{r KPRA_14}
+KPRA_14 <- read.csv("data/2014/KPRA_14.csv", skip = 1, header = TRUE)
+KPRA_14 <- slice(KPRA_14, 1:(n() - 3))
+KPRA_14 <- KPRA_14[,-c(1,3)]
+colnames(KPRA_14)[2] <- "Ret_punt"
+colnames(KPRA_14)[3] <- "Yds_punt"
+colnames(KPRA_14)[4] <- "TD_punt"
+colnames(KPRA_14)[5] <- "Y.R_punt"
+colnames(KPRA_14)[6] <- "Ret_kick"
+colnames(KPRA_14)[7] <- "Yds_kick"
+colnames(KPRA_14)[8] <- "TD_kick"
+colnames(KPRA_14)[9] <- "Y.R_kick"
+
+#KPRA_14
+
+```
+
+```{r KA_14}
+KA_14 <- read.csv("data/2014/KA_14.csv", skip = 1, header = TRUE)
+KA_14 <- slice(KA_14, 1:(n() - 3))
+KA_14 <- KA_14[,-c(1,3)]
+
+
+colnames(KA_14)[4] <- "FG_pct"
+colnames(KA_14)[7] <- "XP_pct"
+
+KA_14$FG_pct <- gsub("%", "",KA_14$FG_pct)
+KA_14$XP_pct <- gsub("%", "",KA_14$XP_pct)
+
+KA_14$FG_pct <- as.numeric(KA_14$FG_pct)
+KA_14$XP_pct <- as.numeric(KA_14$XP_pct)
+
+#KA_14
+```
+
+```{r PA_14}
+PA_14 <- read.csv("data/2014/PA_14.csv", skip = 1, header = TRUE)
+PA_14 <- slice(PA_14, 1:(n() - 3))
+PA_14 <- PA_14[,-c(1,3,7)]
+colnames(PA_14)[3] <- "Yds_punt"
+colnames(PA_14)[4] <- "Y.P_punt"
+
+#PA_14
+```
+
+```{r SD_14}
+SD_14 <- read.csv("data/2014/SD_14.csv", header = TRUE)
+SD_14 <- slice(SD_14, 1:(n() - 3))
+SD_14 <- SD_14[,-c(1,3,4,5,15,16,17,18)]
+SD_14 <- replace(SD_14, is.na(SD_14), 0)
+
+#SD_14
+```
+
+```{r CA_14}
+CA_14 <- read.csv("data/2014/CA_14.csv",skip = 1, header = TRUE)
+CA_14 <- slice(CA_14, 1:(n() - 1))
+CA_14 <- CA_14[,-c(1,3)]
+
+
+CA_14$X3D. <- gsub("%", "",CA_14$X3D.)
+CA_14$X3D. <- as.numeric(CA_14$X3D.)
+
+CA_14$X4D. <- gsub("%", "",CA_14$X4D.)
+CA_14$X4D. <- as.numeric(CA_14$X4D.)
+
+CA_14$RZPct <- gsub("%", "",CA_14$RZPct)
+CA_14$RZPct <- as.numeric(CA_14$RZPct)
+
+colnames(CA_14)[4] <- "X3D_Pct"
+colnames(CA_14)[7] <- "X4D_Pct"
+
+#CA_14
+```
+
+```{r DAA_14}
+DAA_14 <- read.csv("data/2014/DAA_14.csv",skip = 1, header = TRUE)
+DAA_14 <- slice(DAA_14, 1:(n() - 1))
+DAA_14 <- DAA_14[,-c(1,3)]
+
+DAA_14$Start <- gsub("Own ", "",DAA_14$Start)
+DAA_14$Start <- as.numeric(DAA_14$Start)
+DAA_14$Start <- 100 - DAA_14$Start 
+
+
+DAA_14$Time <- sapply(strsplit(DAA_14$Time,":"),
+  function(x) {
+    x <- as.numeric(x)
+    x[1]+x[2]/60
+    }
+)
+
+colnames(DAA_14)[2] <- "Num_drives"
+colnames(DAA_14)[4] <- "Sc_pct"
+colnames(DAA_14)[5] <- "TO_pct"
+colnames(DAA_14)[6] <- "Plays_per_drive"
+colnames(DAA_14)[7] <- "Yds_per_drive"
+colnames(DAA_14)[8] <- "Start_pos"
+colnames(DAA_14)[9] <- "Time_per_drive"
+colnames(DAA_14)[10] <- "Pts_per_drive"
+
+#DAA_14
+```
+
+```{r WINS_14}
+AFC_14 <- read.csv("data/2014/AFC_14.csv", header = TRUE)
+NFC_14 <- read.csv("data/2014/NFC_14.csv", header = TRUE)
+
+
+AFC_14 <- AFC_14[,-c(2,3,4,6,7,8,9)]
+NFC_14 <- NFC_14[,-c(2,3,4,6,7,8,9)]
+
+Wins_14 <- rbind(AFC_14,NFC_14)
+Wins_14
+```
+
+```{r MERGE_14}
+Full_14 <- merge(TD_14, Wins_14, by.x = "Tm", by.y = "Tm")
+Full_14 <- merge(Full_14, PD_14, by.x = "Tm", by.y = "Tm")
+Full_14 <- merge(Full_14, RD_14, by.x = "Tm", by.y = "Tm")
+Full_14 <- merge(Full_14, KPRA_14, by.x = "Tm", by.y = "Tm")
+Full_14 <- merge(Full_14, PA_14, by.x = "Tm", by.y = "Tm")
+Full_14 <- merge(Full_14, KA_14, by.x = "Tm", by.y = "Tm")
+Full_14 <- merge(Full_14, SD_14, by.x = "Tm", by.y = "Tm")
+Full_14 <- merge(Full_14, CA_14, by.x = "Tm", by.y = "Tm")
+Full_14 <- merge(Full_14, DAA_14, by.x = "Tm", by.y = "Tm")
+
+Full_14
+```
+
+
+
+# 2015 Season
+
+```{r TD_15}
+TD_15 <- read.csv("data/2015/TD_15.csv",skip = 1, header = TRUE)
+
+TD_15 <- TD_15[,-c(1,11,12,13,14,15,16,18,19,20,21)]
+TD_15 <- slice(TD_15, 1:(n() - 3))
+
+colnames(TD_15)[4] <- "Yds_tot"
+colnames(TD_15)[9] <- "1stD_tot"
+colnames(TD_15)[10] <- "1stD_pass"
+colnames(TD_15)[11] <- "1stD_run"
+colnames(TD_15)[13] <- "Yds_pen"
+colnames(TD_15)[14] <- "1stD_pen"
+colnames(TD_15)[15] <- "Score_pct"
+colnames(TD_15)[16] <- "TO_pct"
+colnames(TD_15)[17] <- "EXP_tot"
+
+#TD_15
+```
+
+```{r PD_15}
+PD_15 <- read.csv("data/2015/PD_15.csv", header = TRUE)
+PD_15 <- slice(PD_15, 1:(n() - 3))
+PD_15 <- PD_15[,-c(1,3)]
+colnames(PD_15)[2] <- "Cmp_pass"
+colnames(PD_15)[3] <- "Att_pct"
+colnames(PD_15)[4] <- "Cmp_pct_pass"
+colnames(PD_15)[5] <- "Yds_pass"
+colnames(PD_15)[6] <- "TD_pass"
+colnames(PD_15)[7] <- "TD_pct_pass"
+colnames(PD_15)[10] <- "Int_pct"
+colnames(PD_15)[13] <- "Y.C_pass"
+colnames(PD_15)[14] <- "Y.G_pass"
+colnames(PD_15)[17] <- "Yds_Sk"
+colnames(PD_15)[19] <- "Sk_pct"
+colnames(PD_15)[22] <- "EXP_pass"
+
+#PD_15
+```
+
+```{r RD_15}
+RD_15 <- read.csv("data/2015/RD_15.csv", header = TRUE)
+RD_15 <- slice(RD_15, 1:(n() - 3))
+RD_15 <- RD_15[,-c(1,3)]
+colnames(RD_15)[2] <- "Att_run"
+colnames(RD_15)[3] <- "Yds_run"
+colnames(RD_15)[4] <- "TD_run"
+colnames(RD_15)[5] <- "Y.A_run"
+colnames(RD_15)[6] <- "Y.G_run"
+colnames(RD_15)[7] <- "EXP_run"
+
+#RD_02
+
+```
+
+```{r KPRA_15}
+KPRA_15 <- read.csv("data/2015/KPRA_15.csv", skip = 1, header = TRUE)
+KPRA_15 <- slice(KPRA_15, 1:(n() - 3))
+KPRA_15 <- KPRA_15[,-c(1,3)]
+colnames(KPRA_15)[2] <- "Ret_punt"
+colnames(KPRA_15)[3] <- "Yds_punt"
+colnames(KPRA_15)[4] <- "TD_punt"
+colnames(KPRA_15)[5] <- "Y.R_punt"
+colnames(KPRA_15)[6] <- "Ret_kick"
+colnames(KPRA_15)[7] <- "Yds_kick"
+colnames(KPRA_15)[8] <- "TD_kick"
+colnames(KPRA_15)[9] <- "Y.R_kick"
+
+#KPRA_15
+
+```
+
+```{r KA_15}
+KA_15 <- read.csv("data/2015/KA_15.csv", skip = 1, header = TRUE)
+KA_15 <- slice(KA_15, 1:(n() - 3))
+KA_15 <- KA_15[,-c(1,3)]
+
+
+colnames(KA_15)[4] <- "FG_pct"
+colnames(KA_15)[7] <- "XP_pct"
+
+KA_15$FG_pct <- gsub("%", "",KA_15$FG_pct)
+KA_15$XP_pct <- gsub("%", "",KA_15$XP_pct)
+
+KA_15$FG_pct <- as.numeric(KA_15$FG_pct)
+KA_15$XP_pct <- as.numeric(KA_15$XP_pct)
+
+#KA_15
+```
+
+```{r PA_15}
+PA_15 <- read.csv("data/2015/PA_15.csv", skip = 1, header = TRUE)
+PA_15 <- slice(PA_15, 1:(n() - 3))
+PA_15 <- PA_15[,-c(1,3,7)]
+colnames(PA_15)[3] <- "Yds_punt"
+colnames(PA_15)[4] <- "Y.P_punt"
+
+#PA_15
+```
+
+```{r SD_15}
+SD_15 <- read.csv("data/2015/SD_15.csv", header = TRUE)
+SD_15 <- slice(SD_15, 1:(n() - 3))
+SD_15 <- SD_15[,-c(1,3,4,5,15,16,17,18)]
+SD_15 <- replace(SD_15, is.na(SD_15), 0)
+
+#SD_15
+```
+
+```{r CA_15}
+CA_15 <- read.csv("data/2015/CA_15.csv",skip = 1, header = TRUE)
+CA_15 <- slice(CA_15, 1:(n() - 1))
+CA_15 <- CA_15[,-c(1,3)]
+
+
+CA_15$X3D. <- gsub("%", "",CA_15$X3D.)
+CA_15$X3D. <- as.numeric(CA_15$X3D.)
+
+CA_15$X4D. <- gsub("%", "",CA_15$X4D.)
+CA_15$X4D. <- as.numeric(CA_15$X4D.)
+
+CA_15$RZPct <- gsub("%", "",CA_15$RZPct)
+CA_15$RZPct <- as.numeric(CA_15$RZPct)
+
+colnames(CA_15)[4] <- "X3D_Pct"
+colnames(CA_15)[7] <- "X4D_Pct"
+
+#CA_15
+```
+
+```{r DAA_15}
+DAA_15 <- read.csv("data/2015/DAA_15.csv",skip = 1, header = TRUE)
+DAA_15 <- slice(DAA_15, 1:(n() - 1))
+DAA_15 <- DAA_15[,-c(1,3)]
+
+DAA_15$Start <- gsub("Own ", "",DAA_15$Start)
+DAA_15$Start <- as.numeric(DAA_15$Start)
+DAA_15$Start <- 100 - DAA_15$Start 
+
+
+DAA_15$Time <- sapply(strsplit(DAA_15$Time,":"),
+  function(x) {
+    x <- as.numeric(x)
+    x[1]+x[2]/60
+    }
+)
+
+colnames(DAA_15)[2] <- "Num_drives"
+colnames(DAA_15)[4] <- "Sc_pct"
+colnames(DAA_15)[5] <- "TO_pct"
+colnames(DAA_15)[6] <- "Plays_per_drive"
+colnames(DAA_15)[7] <- "Yds_per_drive"
+colnames(DAA_15)[8] <- "Start_pos"
+colnames(DAA_15)[9] <- "Time_per_drive"
+colnames(DAA_15)[10] <- "Pts_per_drive"
+
+#DAA_15
+```
+
+```{r WINS_15}
+AFC_15 <- read.csv("data/2015/AFC_15.csv", header = TRUE)
+NFC_15 <- read.csv("data/2015/NFC_15.csv", header = TRUE)
+
+
+AFC_15 <- AFC_15[,-c(2,3,5,6,7,8,9)]
+NFC_15 <- NFC_15[,-c(2,3,5,6,7,8,9)]
+
+Wins_15 <- rbind(AFC_15,NFC_15)
+Wins_15
+```
+
+```{r MERGE_15}
+Full_15 <- merge(TD_15, Wins_15, by.x = "Tm", by.y = "Tm")
+Full_15 <- merge(Full_15, PD_15, by.x = "Tm", by.y = "Tm")
+Full_15 <- merge(Full_15, RD_15, by.x = "Tm", by.y = "Tm")
+Full_15 <- merge(Full_15, KPRA_15, by.x = "Tm", by.y = "Tm")
+Full_15 <- merge(Full_15, PA_15, by.x = "Tm", by.y = "Tm")
+Full_15 <- merge(Full_15, KA_15, by.x = "Tm", by.y = "Tm")
+Full_15 <- merge(Full_15, SD_15, by.x = "Tm", by.y = "Tm")
+Full_15 <- merge(Full_15, CA_15, by.x = "Tm", by.y = "Tm")
+Full_15 <- merge(Full_15, DAA_15, by.x = "Tm", by.y = "Tm")
+
+Full_15
+```
+
+
+# 2016 Season
+
+```{r TD_16}
+TD_16 <- read.csv("data/2016/TD_16.csv",skip = 1, header = TRUE)
+
+TD_16 <- TD_16[,-c(1,11,12,13,14,15,16,18,19,20,21)]
+TD_16 <- slice(TD_16, 1:(n() - 3))
+
+colnames(TD_16)[4] <- "Yds_tot"
+colnames(TD_16)[9] <- "1stD_tot"
+colnames(TD_16)[10] <- "1stD_pass"
+colnames(TD_16)[11] <- "1stD_run"
+colnames(TD_16)[13] <- "Yds_pen"
+colnames(TD_16)[14] <- "1stD_pen"
+colnames(TD_16)[15] <- "Score_pct"
+colnames(TD_16)[16] <- "TO_pct"
+colnames(TD_16)[17] <- "EXP_tot"
+
+#TD_16
+```
+
+```{r PD_16}
+PD_16 <- read.csv("data/2016/PD_16.csv", header = TRUE)
+PD_16 <- slice(PD_16, 1:(n() - 3))
+PD_16 <- PD_16[,-c(1,3)]
+colnames(PD_16)[2] <- "Cmp_pass"
+colnames(PD_16)[3] <- "Att_pct"
+colnames(PD_16)[4] <- "Cmp_pct_pass"
+colnames(PD_16)[5] <- "Yds_pass"
+colnames(PD_16)[6] <- "TD_pass"
+colnames(PD_16)[7] <- "TD_pct_pass"
+colnames(PD_16)[10] <- "Int_pct"
+colnames(PD_16)[13] <- "Y.C_pass"
+colnames(PD_16)[14] <- "Y.G_pass"
+colnames(PD_16)[17] <- "Yds_Sk"
+colnames(PD_16)[19] <- "Sk_pct"
+colnames(PD_16)[22] <- "EXP_pass"
+
+#PD_16
+```
+
+```{r RD_16}
+RD_16 <- read.csv("data/2016/RD_16.csv", header = TRUE)
+RD_16 <- slice(RD_16, 1:(n() - 3))
+RD_16 <- RD_16[,-c(1,3)]
+colnames(RD_16)[2] <- "Att_run"
+colnames(RD_16)[3] <- "Yds_run"
+colnames(RD_16)[4] <- "TD_run"
+colnames(RD_16)[5] <- "Y.A_run"
+colnames(RD_16)[6] <- "Y.G_run"
+colnames(RD_16)[7] <- "EXP_run"
+
+#RD_02
+
+```
+
+```{r KPRA_16}
+KPRA_16 <- read.csv("data/2016/KPRA_16.csv", skip = 1, header = TRUE)
+KPRA_16 <- slice(KPRA_16, 1:(n() - 3))
+KPRA_16 <- KPRA_16[,-c(1,3)]
+colnames(KPRA_16)[2] <- "Ret_punt"
+colnames(KPRA_16)[3] <- "Yds_punt"
+colnames(KPRA_16)[4] <- "TD_punt"
+colnames(KPRA_16)[5] <- "Y.R_punt"
+colnames(KPRA_16)[6] <- "Ret_kick"
+colnames(KPRA_16)[7] <- "Yds_kick"
+colnames(KPRA_16)[8] <- "TD_kick"
+colnames(KPRA_16)[9] <- "Y.R_kick"
+
+#KPRA_16
+
+```
+
+```{r KA_16}
+KA_16 <- read.csv("data/2016/KA_16.csv", skip = 1, header = TRUE)
+KA_16 <- slice(KA_16, 1:(n() - 3))
+KA_16 <- KA_16[,-c(1,3)]
+
+
+colnames(KA_16)[4] <- "FG_pct"
+colnames(KA_16)[7] <- "XP_pct"
+
+KA_16$FG_pct <- gsub("%", "",KA_16$FG_pct)
+KA_16$XP_pct <- gsub("%", "",KA_16$XP_pct)
+
+KA_16$FG_pct <- as.numeric(KA_16$FG_pct)
+KA_16$XP_pct <- as.numeric(KA_16$XP_pct)
+
+#KA_16
+```
+
+```{r PA_16}
+PA_16 <- read.csv("data/2016/PA_16.csv", skip = 1, header = TRUE)
+PA_16 <- slice(PA_16, 1:(n() - 3))
+PA_16 <- PA_16[,-c(1,3,7)]
+colnames(PA_16)[3] <- "Yds_punt"
+colnames(PA_16)[4] <- "Y.P_punt"
+
+#PA_16
+```
+
+```{r SD_16}
+SD_16 <- read.csv("data/2016/SD_16.csv", header = TRUE)
+SD_16 <- slice(SD_16, 1:(n() - 3))
+SD_16 <- SD_16[,-c(1,3,4,5,15,16,17,18)]
+SD_16 <- replace(SD_16, is.na(SD_16), 0)
+
+#SD_16
+```
+
+```{r CA_16}
+CA_16 <- read.csv("data/2016/CA_16.csv",skip = 1, header = TRUE)
+CA_16 <- slice(CA_16, 1:(n() - 1))
+CA_16 <- CA_16[,-c(1,3)]
+
+
+CA_16$X3D. <- gsub("%", "",CA_16$X3D.)
+CA_16$X3D. <- as.numeric(CA_16$X3D.)
+
+CA_16$X4D. <- gsub("%", "",CA_16$X4D.)
+CA_16$X4D. <- as.numeric(CA_16$X4D.)
+
+CA_16$RZPct <- gsub("%", "",CA_16$RZPct)
+CA_16$RZPct <- as.numeric(CA_16$RZPct)
+
+colnames(CA_16)[4] <- "X3D_Pct"
+colnames(CA_16)[7] <- "X4D_Pct"
+
+#CA_16
+```
+
+```{r DAA_16}
+DAA_16 <- read.csv("data/2016/DAA_16.csv",skip = 1, header = TRUE)
+DAA_16 <- slice(DAA_16, 1:(n() - 1))
+DAA_16 <- DAA_16[,-c(1,3)]
+
+DAA_16$Start <- gsub("Own ", "",DAA_16$Start)
+DAA_16$Start <- as.numeric(DAA_16$Start)
+DAA_16$Start <- 100 - DAA_16$Start 
+
+
+DAA_16$Time <- sapply(strsplit(DAA_16$Time,":"),
+  function(x) {
+    x <- as.numeric(x)
+    x[1]+x[2]/60
+    }
+)
+
+colnames(DAA_16)[2] <- "Num_drives"
+colnames(DAA_16)[4] <- "Sc_pct"
+colnames(DAA_16)[5] <- "TO_pct"
+colnames(DAA_16)[6] <- "Plays_per_drive"
+colnames(DAA_16)[7] <- "Yds_per_drive"
+colnames(DAA_16)[8] <- "Start_pos"
+colnames(DAA_16)[9] <- "Time_per_drive"
+colnames(DAA_16)[10] <- "Pts_per_drive"
+
+#DAA_16
+```
+
+```{r WINS_16}
+AFC_16 <- read.csv("data/2016/AFC_16.csv", header = TRUE)
+NFC_16 <- read.csv("data/2016/NFC_16.csv", header = TRUE)
+
+
+AFC_16 <- AFC_16[,-c(2,3,4,6,7,8,9)]
+NFC_16 <- NFC_16[,-c(2,3,4,6,7,8,9)]
+
+Wins_16 <- rbind(AFC_16,NFC_16)
+Wins_16
+```
+
+```{r MERGE_16}
+Full_16 <- merge(TD_16, Wins_16, by.x = "Tm", by.y = "Tm")
+Full_16 <- merge(Full_16, PD_16, by.x = "Tm", by.y = "Tm")
+Full_16 <- merge(Full_16, RD_16, by.x = "Tm", by.y = "Tm")
+Full_16 <- merge(Full_16, KPRA_16, by.x = "Tm", by.y = "Tm")
+Full_16 <- merge(Full_16, PA_16, by.x = "Tm", by.y = "Tm")
+Full_16 <- merge(Full_16, KA_16, by.x = "Tm", by.y = "Tm")
+Full_16 <- merge(Full_16, SD_16, by.x = "Tm", by.y = "Tm")
+Full_16 <- merge(Full_16, CA_16, by.x = "Tm", by.y = "Tm")
+Full_16 <- merge(Full_16, DAA_16, by.x = "Tm", by.y = "Tm")
+
+Full_16
+```
+
+
+
+
+# 2017 Season
+
+```{r TD_17}
+TD_17 <- read.csv("data/2017/TD_17.csv",skip = 1, header = TRUE)
+
+TD_17 <- TD_17[,-c(1,11,12,13,14,15,16,18,19,20,21)]
+TD_17 <- slice(TD_17, 1:(n() - 3))
+
+colnames(TD_17)[4] <- "Yds_tot"
+colnames(TD_17)[9] <- "1stD_tot"
+colnames(TD_17)[10] <- "1stD_pass"
+colnames(TD_17)[11] <- "1stD_run"
+colnames(TD_17)[13] <- "Yds_pen"
+colnames(TD_17)[14] <- "1stD_pen"
+colnames(TD_17)[15] <- "Score_pct"
+colnames(TD_17)[16] <- "TO_pct"
+colnames(TD_17)[17] <- "EXP_tot"
+
+#TD_17
+```
+
+```{r PD_17}
+PD_17 <- read.csv("data/2017/PD_17.csv", header = TRUE)
+PD_17 <- slice(PD_17, 1:(n() - 3))
+PD_17 <- PD_17[,-c(1,3)]
+colnames(PD_17)[2] <- "Cmp_pass"
+colnames(PD_17)[3] <- "Att_pct"
+colnames(PD_17)[4] <- "Cmp_pct_pass"
+colnames(PD_17)[5] <- "Yds_pass"
+colnames(PD_17)[6] <- "TD_pass"
+colnames(PD_17)[7] <- "TD_pct_pass"
+colnames(PD_17)[10] <- "Int_pct"
+colnames(PD_17)[13] <- "Y.C_pass"
+colnames(PD_17)[14] <- "Y.G_pass"
+colnames(PD_17)[17] <- "Yds_Sk"
+colnames(PD_17)[19] <- "Sk_pct"
+colnames(PD_17)[22] <- "EXP_pass"
+
+#PD_17
+```
+
+```{r RD_17}
+RD_17 <- read.csv("data/2017/RD_17.csv", header = TRUE)
+RD_17 <- slice(RD_17, 1:(n() - 3))
+RD_17 <- RD_17[,-c(1,3)]
+colnames(RD_17)[2] <- "Att_run"
+colnames(RD_17)[3] <- "Yds_run"
+colnames(RD_17)[4] <- "TD_run"
+colnames(RD_17)[5] <- "Y.A_run"
+colnames(RD_17)[6] <- "Y.G_run"
+colnames(RD_17)[7] <- "EXP_run"
+
+#RD_02
+
+```
+
+```{r KPRA_17}
+KPRA_17 <- read.csv("data/2017/KPRA_17.csv", skip = 1, header = TRUE)
+KPRA_17 <- slice(KPRA_17, 1:(n() - 3))
+KPRA_17 <- KPRA_17[,-c(1,3)]
+colnames(KPRA_17)[2] <- "Ret_punt"
+colnames(KPRA_17)[3] <- "Yds_punt"
+colnames(KPRA_17)[4] <- "TD_punt"
+colnames(KPRA_17)[5] <- "Y.R_punt"
+colnames(KPRA_17)[6] <- "Ret_kick"
+colnames(KPRA_17)[7] <- "Yds_kick"
+colnames(KPRA_17)[8] <- "TD_kick"
+colnames(KPRA_17)[9] <- "Y.R_kick"
+
+#KPRA_17
+
+```
+
+```{r KA_17}
+KA_17 <- read.csv("data/2017/KA_17.csv", skip = 1, header = TRUE)
+KA_17 <- slice(KA_17, 1:(n() - 3))
+KA_17 <- KA_17[,-c(1,3)]
+
+
+colnames(KA_17)[4] <- "FG_pct"
+colnames(KA_17)[7] <- "XP_pct"
+
+KA_17$FG_pct <- gsub("%", "",KA_17$FG_pct)
+KA_17$XP_pct <- gsub("%", "",KA_17$XP_pct)
+
+KA_17$FG_pct <- as.numeric(KA_17$FG_pct)
+KA_17$XP_pct <- as.numeric(KA_17$XP_pct)
+
+#KA_17
+```
+
+```{r PA_17}
+PA_17 <- read.csv("data/2017/PA_17.csv", skip = 1, header = TRUE)
+PA_17 <- slice(PA_17, 1:(n() - 3))
+PA_17 <- PA_17[,-c(1,3,7)]
+colnames(PA_17)[3] <- "Yds_punt"
+colnames(PA_17)[4] <- "Y.P_punt"
+
+#PA_17
+```
+
+```{r SD_17}
+SD_17 <- read.csv("data/2017/SD_17.csv", header = TRUE)
+SD_17 <- slice(SD_17, 1:(n() - 3))
+SD_17 <- SD_17[,-c(1,3,4,5,15,16,17,18)]
+SD_17 <- replace(SD_17, is.na(SD_17), 0)
+
+#SD_17
+```
+
+```{r CA_17}
+CA_17 <- read.csv("data/2017/CA_17.csv",skip = 1, header = TRUE)
+CA_17 <- slice(CA_17, 1:(n() - 1))
+CA_17 <- CA_17[,-c(1,3)]
+
+
+CA_17$X3D. <- gsub("%", "",CA_17$X3D.)
+CA_17$X3D. <- as.numeric(CA_17$X3D.)
+
+CA_17$X4D. <- gsub("%", "",CA_17$X4D.)
+CA_17$X4D. <- as.numeric(CA_17$X4D.)
+
+CA_17$RZPct <- gsub("%", "",CA_17$RZPct)
+CA_17$RZPct <- as.numeric(CA_17$RZPct)
+
+colnames(CA_17)[4] <- "X3D_Pct"
+colnames(CA_17)[7] <- "X4D_Pct"
+
+#CA_17
+```
+
+```{r DAA_17}
+DAA_17 <- read.csv("data/2017/DAA_17.csv",skip = 1, header = TRUE)
+DAA_17 <- slice(DAA_17, 1:(n() - 1))
+DAA_17 <- DAA_17[,-c(1,3)]
+
+DAA_17$Start <- gsub("Own ", "",DAA_17$Start)
+DAA_17$Start <- as.numeric(DAA_17$Start)
+DAA_17$Start <- 100 - DAA_17$Start 
+
+
+DAA_17$Time <- sapply(strsplit(DAA_17$Time,":"),
+  function(x) {
+    x <- as.numeric(x)
+    x[1]+x[2]/60
+    }
+)
+
+colnames(DAA_17)[2] <- "Num_drives"
+colnames(DAA_17)[4] <- "Sc_pct"
+colnames(DAA_17)[5] <- "TO_pct"
+colnames(DAA_17)[6] <- "Plays_per_drive"
+colnames(DAA_17)[7] <- "Yds_per_drive"
+colnames(DAA_17)[8] <- "Start_pos"
+colnames(DAA_17)[9] <- "Time_per_drive"
+colnames(DAA_17)[10] <- "Pts_per_drive"
+
+#DAA_17
+```
+
+```{r WINS_17}
+AFC_17 <- read.csv("data/2017/AFC_17.csv", header = TRUE)
+NFC_17 <- read.csv("data/2017/NFC_17.csv", header = TRUE)
+
+
+AFC_17 <- AFC_17[,-c(2,3,5,6,7,8)]
+NFC_17 <- NFC_17[,-c(2,3,5,6,7,8,9)]
+
+Wins_17 <- rbind(AFC_17,NFC_17)
+Wins_17
+```
+
+```{r MERGE_17}
+Full_17 <- merge(TD_17, Wins_17, by.x = "Tm", by.y = "Tm")
+Full_17 <- merge(Full_17, PD_17, by.x = "Tm", by.y = "Tm")
+Full_17 <- merge(Full_17, RD_17, by.x = "Tm", by.y = "Tm")
+Full_17 <- merge(Full_17, KPRA_17, by.x = "Tm", by.y = "Tm")
+Full_17 <- merge(Full_17, PA_17, by.x = "Tm", by.y = "Tm")
+Full_17 <- merge(Full_17, KA_17, by.x = "Tm", by.y = "Tm")
+Full_17 <- merge(Full_17, SD_17, by.x = "Tm", by.y = "Tm")
+Full_17 <- merge(Full_17, CA_17, by.x = "Tm", by.y = "Tm")
+Full_17 <- merge(Full_17, DAA_17, by.x = "Tm", by.y = "Tm")
+
+Full_17
+```
+
+
+
+# 2018 Season
+
+```{r TD_18}
+TD_18 <- read.csv("data/2018/TD_18.csv",skip = 1, header = TRUE)
+
+TD_18 <- TD_18[,-c(1,11,12,13,14,15,16,18,19,20,21)]
+TD_18 <- slice(TD_18, 1:(n() - 3))
+
+colnames(TD_18)[4] <- "Yds_tot"
+colnames(TD_18)[9] <- "1stD_tot"
+colnames(TD_18)[10] <- "1stD_pass"
+colnames(TD_18)[11] <- "1stD_run"
+colnames(TD_18)[13] <- "Yds_pen"
+colnames(TD_18)[14] <- "1stD_pen"
+colnames(TD_18)[15] <- "Score_pct"
+colnames(TD_18)[16] <- "TO_pct"
+colnames(TD_18)[17] <- "EXP_tot"
+
+#TD_18
+```
+
+```{r PD_18}
+PD_18 <- read.csv("data/2018/PD_18.csv", header = TRUE)
+PD_18 <- slice(PD_18, 1:(n() - 3))
+PD_18 <- PD_18[,-c(1,3)]
+colnames(PD_18)[2] <- "Cmp_pass"
+colnames(PD_18)[3] <- "Att_pct"
+colnames(PD_18)[4] <- "Cmp_pct_pass"
+colnames(PD_18)[5] <- "Yds_pass"
+colnames(PD_18)[6] <- "TD_pass"
+colnames(PD_18)[7] <- "TD_pct_pass"
+colnames(PD_18)[10] <- "Int_pct"
+colnames(PD_18)[13] <- "Y.C_pass"
+colnames(PD_18)[14] <- "Y.G_pass"
+colnames(PD_18)[17] <- "Yds_Sk"
+colnames(PD_18)[19] <- "Sk_pct"
+colnames(PD_18)[22] <- "EXP_pass"
+
+#PD_18
+```
+
+```{r RD_18}
+RD_18 <- read.csv("data/2018/RD_18.csv", header = TRUE)
+RD_18 <- slice(RD_18, 1:(n() - 3))
+RD_18 <- RD_18[,-c(1,3)]
+colnames(RD_18)[2] <- "Att_run"
+colnames(RD_18)[3] <- "Yds_run"
+colnames(RD_18)[4] <- "TD_run"
+colnames(RD_18)[5] <- "Y.A_run"
+colnames(RD_18)[6] <- "Y.G_run"
+colnames(RD_18)[7] <- "EXP_run"
+
+#RD_02
+
+```
+
+```{r KPRA_18}
+KPRA_18 <- read.csv("data/2018/KPRA_18.csv", skip = 1, header = TRUE)
+KPRA_18 <- slice(KPRA_18, 1:(n() - 3))
+KPRA_18 <- KPRA_18[,-c(1,3)]
+colnames(KPRA_18)[2] <- "Ret_punt"
+colnames(KPRA_18)[3] <- "Yds_punt"
+colnames(KPRA_18)[4] <- "TD_punt"
+colnames(KPRA_18)[5] <- "Y.R_punt"
+colnames(KPRA_18)[6] <- "Ret_kick"
+colnames(KPRA_18)[7] <- "Yds_kick"
+colnames(KPRA_18)[8] <- "TD_kick"
+colnames(KPRA_18)[9] <- "Y.R_kick"
+
+#KPRA_18
+
+```
+
+```{r KA_18}
+KA_18 <- read.csv("data/2018/KA_18.csv", skip = 1, header = TRUE)
+KA_18 <- slice(KA_18, 1:(n() - 3))
+KA_18 <- KA_18[,-c(1,3)]
+
+
+colnames(KA_18)[4] <- "FG_pct"
+colnames(KA_18)[7] <- "XP_pct"
+
+KA_18$FG_pct <- gsub("%", "",KA_18$FG_pct)
+KA_18$XP_pct <- gsub("%", "",KA_18$XP_pct)
+
+KA_18$FG_pct <- as.numeric(KA_18$FG_pct)
+KA_18$XP_pct <- as.numeric(KA_18$XP_pct)
+
+#KA_18
+```
+
+```{r PA_18}
+PA_18 <- read.csv("data/2018/PA_18.csv", skip = 1, header = TRUE)
+PA_18 <- slice(PA_18, 1:(n() - 3))
+PA_18 <- PA_18[,-c(1,3,7)]
+colnames(PA_18)[3] <- "Yds_punt"
+colnames(PA_18)[4] <- "Y.P_punt"
+
+#PA_18
+```
+
+```{r SD_18}
+SD_18 <- read.csv("data/2018/SD_18.csv", header = TRUE)
+SD_18 <- slice(SD_18, 1:(n() - 3))
+SD_18 <- SD_18[,-c(1,3,4,5,15,16,17,18)]
+SD_18 <- replace(SD_18, is.na(SD_18), 0)
+
+#SD_18
+```
+
+```{r CA_18}
+CA_18 <- read.csv("data/2018/CA_18.csv",skip = 1, header = TRUE)
+CA_18 <- slice(CA_18, 1:(n() - 1))
+CA_18 <- CA_18[,-c(1,3)]
+
+
+CA_18$X3D. <- gsub("%", "",CA_18$X3D.)
+CA_18$X3D. <- as.numeric(CA_18$X3D.)
+
+CA_18$X4D. <- gsub("%", "",CA_18$X4D.)
+CA_18$X4D. <- as.numeric(CA_18$X4D.)
+
+CA_18$RZPct <- gsub("%", "",CA_18$RZPct)
+CA_18$RZPct <- as.numeric(CA_18$RZPct)
+
+colnames(CA_18)[4] <- "X3D_Pct"
+colnames(CA_18)[7] <- "X4D_Pct"
+
+#CA_18
+```
+
+```{r DAA_18}
+DAA_18 <- read.csv("data/2018/DAA_18.csv",skip = 1, header = TRUE)
+DAA_18 <- slice(DAA_18, 1:(n() - 1))
+DAA_18 <- DAA_18[,-c(1,3)]
+
+DAA_18$Start <- gsub("Own ", "",DAA_18$Start)
+DAA_18$Start <- as.numeric(DAA_18$Start)
+DAA_18$Start <- 100 - DAA_18$Start 
+
+
+DAA_18$Time <- sapply(strsplit(DAA_18$Time,":"),
+  function(x) {
+    x <- as.numeric(x)
+    x[1]+x[2]/60
+    }
+)
+
+colnames(DAA_18)[2] <- "Num_drives"
+colnames(DAA_18)[4] <- "Sc_pct"
+colnames(DAA_18)[5] <- "TO_pct"
+colnames(DAA_18)[6] <- "Plays_per_drive"
+colnames(DAA_18)[7] <- "Yds_per_drive"
+colnames(DAA_18)[8] <- "Start_pos"
+colnames(DAA_18)[9] <- "Time_per_drive"
+colnames(DAA_18)[10] <- "Pts_per_drive"
+
+#DAA_18
+```
+
+```{r WINS_18}
+AFC_18 <- read.csv("data/2018/AFC_18.csv", header = TRUE)
+NFC_18 <- read.csv("data/2018/NFC_18.csv", header = TRUE)
+
+
+AFC_18 <- AFC_18[,-c(2,3,4,6,7,8,9)]
+NFC_18 <- NFC_18[,-c(2,3,4,6,7,8,9)]
+
+Wins_18 <- rbind(AFC_18,NFC_18)
+Wins_18
+```
+
+```{r MERGE_18}
+Full_18 <- merge(TD_18, Wins_18, by.x = "Tm", by.y = "Tm")
+Full_18 <- merge(Full_18, PD_18, by.x = "Tm", by.y = "Tm")
+Full_18 <- merge(Full_18, RD_18, by.x = "Tm", by.y = "Tm")
+Full_18 <- merge(Full_18, KPRA_18, by.x = "Tm", by.y = "Tm")
+Full_18 <- merge(Full_18, PA_18, by.x = "Tm", by.y = "Tm")
+Full_18 <- merge(Full_18, KA_18, by.x = "Tm", by.y = "Tm")
+Full_18 <- merge(Full_18, SD_18, by.x = "Tm", by.y = "Tm")
+Full_18 <- merge(Full_18, CA_18, by.x = "Tm", by.y = "Tm")
+Full_18 <- merge(Full_18, DAA_18, by.x = "Tm", by.y = "Tm")
+
+Full_18
+```
+
+
+
+
+# 2019 Season
+
+```{r TD_19}
+TD_19 <- read.csv("data/2019/TD_19.csv",skip = 1, header = TRUE)
+
+TD_19 <- TD_19[,-c(1,11,12,13,14,15,16,18,19,20,21)]
+TD_19 <- slice(TD_19, 1:(n() - 3))
+
+colnames(TD_19)[4] <- "Yds_tot"
+colnames(TD_19)[9] <- "1stD_tot"
+colnames(TD_19)[10] <- "1stD_pass"
+colnames(TD_19)[11] <- "1stD_run"
+colnames(TD_19)[13] <- "Yds_pen"
+colnames(TD_19)[14] <- "1stD_pen"
+colnames(TD_19)[15] <- "Score_pct"
+colnames(TD_19)[16] <- "TO_pct"
+colnames(TD_19)[17] <- "EXP_tot"
+
+#TD_19
+```
+
+```{r PD_19}
+PD_19 <- read.csv("data/2019/PD_19.csv", header = TRUE)
+PD_19 <- slice(PD_19, 1:(n() - 3))
+PD_19 <- PD_19[,-c(1,3)]
+colnames(PD_19)[2] <- "Cmp_pass"
+colnames(PD_19)[3] <- "Att_pct"
+colnames(PD_19)[4] <- "Cmp_pct_pass"
+colnames(PD_19)[5] <- "Yds_pass"
+colnames(PD_19)[6] <- "TD_pass"
+colnames(PD_19)[7] <- "TD_pct_pass"
+colnames(PD_19)[10] <- "Int_pct"
+colnames(PD_19)[13] <- "Y.C_pass"
+colnames(PD_19)[14] <- "Y.G_pass"
+colnames(PD_19)[17] <- "Yds_Sk"
+colnames(PD_19)[19] <- "Sk_pct"
+colnames(PD_19)[22] <- "EXP_pass"
+
+#PD_19
+```
+
+```{r RD_19}
+RD_19 <- read.csv("data/2019/RD_19.csv", header = TRUE)
+RD_19 <- slice(RD_19, 1:(n() - 3))
+RD_19 <- RD_19[,-c(1,3)]
+colnames(RD_19)[2] <- "Att_run"
+colnames(RD_19)[3] <- "Yds_run"
+colnames(RD_19)[4] <- "TD_run"
+colnames(RD_19)[5] <- "Y.A_run"
+colnames(RD_19)[6] <- "Y.G_run"
+colnames(RD_19)[7] <- "EXP_run"
+
+#RD_02
+
+```
+
+```{r KPRA_19}
+KPRA_19 <- read.csv("data/2019/KPRA_19.csv", skip = 1, header = TRUE)
+KPRA_19 <- slice(KPRA_19, 1:(n() - 3))
+KPRA_19 <- KPRA_19[,-c(1,3)]
+colnames(KPRA_19)[2] <- "Ret_punt"
+colnames(KPRA_19)[3] <- "Yds_punt"
+colnames(KPRA_19)[4] <- "TD_punt"
+colnames(KPRA_19)[5] <- "Y.R_punt"
+colnames(KPRA_19)[6] <- "Ret_kick"
+colnames(KPRA_19)[7] <- "Yds_kick"
+colnames(KPRA_19)[8] <- "TD_kick"
+colnames(KPRA_19)[9] <- "Y.R_kick"
+
+#KPRA_19
+
+```
+
+```{r KA_19}
+KA_19 <- read.csv("data/2019/KA_19.csv", skip = 1, header = TRUE)
+KA_19 <- slice(KA_19, 1:(n() - 3))
+KA_19 <- KA_19[,-c(1,3)]
+
+
+colnames(KA_19)[4] <- "FG_pct"
+colnames(KA_19)[7] <- "XP_pct"
+
+KA_19$FG_pct <- gsub("%", "",KA_19$FG_pct)
+KA_19$XP_pct <- gsub("%", "",KA_19$XP_pct)
+
+KA_19$FG_pct <- as.numeric(KA_19$FG_pct)
+KA_19$XP_pct <- as.numeric(KA_19$XP_pct)
+
+#KA_19
+```
+
+```{r PA_19}
+PA_19 <- read.csv("data/2019/PA_19.csv", skip = 1, header = TRUE)
+PA_19 <- slice(PA_19, 1:(n() - 3))
+PA_19 <- PA_19[,-c(1,3,7)]
+colnames(PA_19)[3] <- "Yds_punt"
+colnames(PA_19)[4] <- "Y.P_punt"
+
+#PA_19
+```
+
+```{r SD_19}
+SD_19 <- read.csv("data/2019/SD_19.csv", header = TRUE)
+SD_19 <- slice(SD_19, 1:(n() - 3))
+SD_19 <- SD_19[,-c(1,3,4,5,15,16,17,18)]
+SD_19 <- replace(SD_19, is.na(SD_19), 0)
+
+#SD_19
+```
+
+```{r CA_19}
+CA_19 <- read.csv("data/2019/CA_19.csv",skip = 1, header = TRUE)
+CA_19 <- slice(CA_19, 1:(n() - 1))
+CA_19 <- CA_19[,-c(1,3)]
+
+
+CA_19$X3D. <- gsub("%", "",CA_19$X3D.)
+CA_19$X3D. <- as.numeric(CA_19$X3D.)
+
+CA_19$X4D. <- gsub("%", "",CA_19$X4D.)
+CA_19$X4D. <- as.numeric(CA_19$X4D.)
+
+CA_19$RZPct <- gsub("%", "",CA_19$RZPct)
+CA_19$RZPct <- as.numeric(CA_19$RZPct)
+
+colnames(CA_19)[4] <- "X3D_Pct"
+colnames(CA_19)[7] <- "X4D_Pct"
+
+#CA_19
+```
+
+```{r DAA_19}
+DAA_19 <- read.csv("data/2019/DAA_19.csv",skip = 1, header = TRUE)
+DAA_19 <- slice(DAA_19, 1:(n() - 1))
+DAA_19 <- DAA_19[,-c(1,3)]
+
+DAA_19$Start <- gsub("Own ", "",DAA_19$Start)
+DAA_19$Start <- as.numeric(DAA_19$Start)
+DAA_19$Start <- 100 - DAA_19$Start 
+
+
+DAA_19$Time <- sapply(strsplit(DAA_19$Time,":"),
+  function(x) {
+    x <- as.numeric(x)
+    x[1]+x[2]/60
+    }
+)
+
+colnames(DAA_19)[2] <- "Num_drives"
+colnames(DAA_19)[4] <- "Sc_pct"
+colnames(DAA_19)[5] <- "TO_pct"
+colnames(DAA_19)[6] <- "Plays_per_drive"
+colnames(DAA_19)[7] <- "Yds_per_drive"
+colnames(DAA_19)[8] <- "Start_pos"
+colnames(DAA_19)[9] <- "Time_per_drive"
+colnames(DAA_19)[10] <- "Pts_per_drive"
+
+#DAA_19
+```
+
+```{r WINS_19}
+AFC_19 <- read.csv("data/2019/AFC_19.csv", header = TRUE)
+NFC_19 <- read.csv("data/2019/NFC_19.csv", header = TRUE)
+
+
+AFC_19 <- AFC_19[,-c(2,3,4,6,7,8,9)]
+NFC_19 <- NFC_19[,-c(2,3,4,6,7,8,9)]
+
+Wins_19 <- rbind(AFC_19,NFC_19)
+Wins_19
+```
+
+```{r MERGE_19}
+Full_19 <- merge(TD_19, Wins_19, by.x = "Tm", by.y = "Tm")
+Full_19 <- merge(Full_19, PD_19, by.x = "Tm", by.y = "Tm")
+Full_19 <- merge(Full_19, RD_19, by.x = "Tm", by.y = "Tm")
+Full_19 <- merge(Full_19, KPRA_19, by.x = "Tm", by.y = "Tm")
+Full_19 <- merge(Full_19, PA_19, by.x = "Tm", by.y = "Tm")
+Full_19 <- merge(Full_19, KA_19, by.x = "Tm", by.y = "Tm")
+Full_19 <- merge(Full_19, SD_19, by.x = "Tm", by.y = "Tm")
+Full_19 <- merge(Full_19, CA_19, by.x = "Tm", by.y = "Tm")
+Full_19 <- merge(Full_19, DAA_19, by.x = "Tm", by.y = "Tm")
+
+Full_19
+```
+
+
+
+
+
+
+
+
+# 2020 Season
+
+```{r TD_20}
+TD_20 <- read.csv("data/2020/TD_20.csv",skip = 1, header = TRUE)
+
+TD_20 <- TD_20[,-c(1,11,12,13,14,15,16,18,19,20,21)]
+TD_20 <- slice(TD_20, 1:(n() - 3))
+
+colnames(TD_20)[4] <- "Yds_tot"
+colnames(TD_20)[9] <- "1stD_tot"
+colnames(TD_20)[10] <- "1stD_pass"
+colnames(TD_20)[11] <- "1stD_run"
+colnames(TD_20)[13] <- "Yds_pen"
+colnames(TD_20)[14] <- "1stD_pen"
+colnames(TD_20)[15] <- "Score_pct"
+colnames(TD_20)[16] <- "TO_pct"
+colnames(TD_20)[17] <- "EXP_tot"
+
+#TD_20
+```
+
+```{r PD_20}
+PD_20 <- read.csv("data/2020/PD_20.csv", header = TRUE)
+PD_20 <- slice(PD_20, 1:(n() - 3))
+PD_20 <- PD_20[,-c(1,3)]
+colnames(PD_20)[2] <- "Cmp_pass"
+colnames(PD_20)[3] <- "Att_pct"
+colnames(PD_20)[4] <- "Cmp_pct_pass"
+colnames(PD_20)[5] <- "Yds_pass"
+colnames(PD_20)[6] <- "TD_pass"
+colnames(PD_20)[7] <- "TD_pct_pass"
+colnames(PD_20)[10] <- "Int_pct"
+colnames(PD_20)[13] <- "Y.C_pass"
+colnames(PD_20)[14] <- "Y.G_pass"
+colnames(PD_20)[17] <- "Yds_Sk"
+colnames(PD_20)[19] <- "Sk_pct"
+colnames(PD_20)[22] <- "EXP_pass"
+
+#PD_20
+```
+
+```{r RD_20}
+RD_20 <- read.csv("data/2020/RD_20.csv", header = TRUE)
+RD_20 <- slice(RD_20, 1:(n() - 3))
+RD_20 <- RD_20[,-c(1,3)]
+colnames(RD_20)[2] <- "Att_run"
+colnames(RD_20)[3] <- "Yds_run"
+colnames(RD_20)[4] <- "TD_run"
+colnames(RD_20)[5] <- "Y.A_run"
+colnames(RD_20)[6] <- "Y.G_run"
+colnames(RD_20)[7] <- "EXP_run"
+
+#RD_02
+
+```
+
+```{r KPRA_20}
+KPRA_20 <- read.csv("data/2020/KPRA_20.csv", skip = 1, header = TRUE)
+KPRA_20 <- slice(KPRA_20, 1:(n() - 3))
+KPRA_20 <- KPRA_20[,-c(1,3)]
+colnames(KPRA_20)[2] <- "Ret_punt"
+colnames(KPRA_20)[3] <- "Yds_punt"
+colnames(KPRA_20)[4] <- "TD_punt"
+colnames(KPRA_20)[5] <- "Y.R_punt"
+colnames(KPRA_20)[6] <- "Ret_kick"
+colnames(KPRA_20)[7] <- "Yds_kick"
+colnames(KPRA_20)[8] <- "TD_kick"
+colnames(KPRA_20)[9] <- "Y.R_kick"
+
+#KPRA_20
+
+```
+
+```{r KA_20}
+KA_20 <- read.csv("data/2020/KA_20.csv", skip = 1, header = TRUE)
+KA_20 <- slice(KA_20, 1:(n() - 3))
+KA_20 <- KA_20[,-c(1,3)]
+
+
+colnames(KA_20)[4] <- "FG_pct"
+colnames(KA_20)[7] <- "XP_pct"
+
+KA_20$FG_pct <- gsub("%", "",KA_20$FG_pct)
+KA_20$XP_pct <- gsub("%", "",KA_20$XP_pct)
+
+KA_20$FG_pct <- as.numeric(KA_20$FG_pct)
+KA_20$XP_pct <- as.numeric(KA_20$XP_pct)
+
+#KA_20
+```
+
+```{r PA_20}
+PA_20 <- read.csv("data/2020/PA_20.csv", skip = 1, header = TRUE)
+PA_20 <- slice(PA_20, 1:(n() - 3))
+PA_20 <- PA_20[,-c(1,3,7)]
+colnames(PA_20)[3] <- "Yds_punt"
+colnames(PA_20)[4] <- "Y.P_punt"
+
+#PA_20
+```
+
+```{r SD_20}
+SD_20 <- read.csv("data/2020/SD_20.csv", header = TRUE)
+SD_20 <- slice(SD_20, 1:(n() - 3))
+SD_20 <- SD_20[,-c(1,3,4,5,15,16,17,18)]
+SD_20 <- replace(SD_20, is.na(SD_20), 0)
+
+#SD_20
+```
+
+```{r CA_20}
+CA_20 <- read.csv("data/2020/CA_20.csv",skip = 1, header = TRUE)
+CA_20 <- slice(CA_20, 1:(n() - 1))
+CA_20 <- CA_20[,-c(1,3)]
+
+
+CA_20$X3D. <- gsub("%", "",CA_20$X3D.)
+CA_20$X3D. <- as.numeric(CA_20$X3D.)
+
+CA_20$X4D. <- gsub("%", "",CA_20$X4D.)
+CA_20$X4D. <- as.numeric(CA_20$X4D.)
+
+CA_20$RZPct <- gsub("%", "",CA_20$RZPct)
+CA_20$RZPct <- as.numeric(CA_20$RZPct)
+
+colnames(CA_20)[4] <- "X3D_Pct"
+colnames(CA_20)[7] <- "X4D_Pct"
+
+#CA_20
+```
+
+```{r DAA_20}
+DAA_20 <- read.csv("data/2020/DAA_20.csv",skip = 1, header = TRUE)
+DAA_20 <- slice(DAA_20, 1:(n() - 1))
+DAA_20 <- DAA_20[,-c(1,3)]
+
+DAA_20$Start <- gsub("Own ", "",DAA_20$Start)
+DAA_20$Start <- as.numeric(DAA_20$Start)
+DAA_20$Start <- 100 - DAA_20$Start 
+
+
+DAA_20$Time <- sapply(strsplit(DAA_20$Time,":"),
+  function(x) {
+    x <- as.numeric(x)
+    x[1]+x[2]/60
+    }
+)
+
+colnames(DAA_20)[2] <- "Num_drives"
+colnames(DAA_20)[4] <- "Sc_pct"
+colnames(DAA_20)[5] <- "TO_pct"
+colnames(DAA_20)[6] <- "Plays_per_drive"
+colnames(DAA_20)[7] <- "Yds_per_drive"
+colnames(DAA_20)[8] <- "Start_pos"
+colnames(DAA_20)[9] <- "Time_per_drive"
+colnames(DAA_20)[10] <- "Pts_per_drive"
+
+#DAA_20
+```
+
+```{r WINS_20}
+AFC_20 <- read.csv("data/2020/AFC_20.csv", header = TRUE)
+NFC_20 <- read.csv("data/2020/NFC_20.csv", header = TRUE)
+
+
+AFC_20 <- AFC_20[,-c(2,3,4,6,7,8,9)]
+NFC_20 <- NFC_20[,-c(2,3,4,6,7,8,9)]
+
+Wins_20 <- rbind(AFC_20,NFC_20)
+Wins_20
+```
+
+```{r MERGE_20}
+Full_20 <- merge(TD_20, Wins_20, by.x = "Tm", by.y = "Tm")
+Full_20 <- merge(Full_20, PD_20, by.x = "Tm", by.y = "Tm")
+Full_20 <- merge(Full_20, RD_20, by.x = "Tm", by.y = "Tm")
+Full_20 <- merge(Full_20, KPRA_20, by.x = "Tm", by.y = "Tm")
+Full_20 <- merge(Full_20, PA_20, by.x = "Tm", by.y = "Tm")
+Full_20 <- merge(Full_20, KA_20, by.x = "Tm", by.y = "Tm")
+Full_20 <- merge(Full_20, SD_20, by.x = "Tm", by.y = "Tm")
+Full_20 <- merge(Full_20, CA_20, by.x = "Tm", by.y = "Tm")
+Full_20 <- merge(Full_20, DAA_20, by.x = "Tm", by.y = "Tm")
+
+Full_20
+```
+
+
+
+
+
+
+
+
+
+# 2021 Season
+
+```{r TD_21}
+TD_21 <- read.csv("data/2021/TD_21.csv",skip = 1, header = TRUE)
+
+TD_21 <- TD_21[,-c(1,11,12,13,14,15,16,18,19,20,21)]
+TD_21 <- slice(TD_21, 1:(n() - 3))
+
+colnames(TD_21)[4] <- "Yds_tot"
+colnames(TD_21)[9] <- "1stD_tot"
+colnames(TD_21)[10] <- "1stD_pass"
+colnames(TD_21)[11] <- "1stD_run"
+colnames(TD_21)[13] <- "Yds_pen"
+colnames(TD_21)[14] <- "1stD_pen"
+colnames(TD_21)[15] <- "Score_pct"
+colnames(TD_21)[16] <- "TO_pct"
+colnames(TD_21)[17] <- "EXP_tot"
+
+#TD_21
+```
+
+```{r PD_21}
+PD_21 <- read.csv("data/2021/PD_21.csv", header = TRUE)
+PD_21 <- slice(PD_21, 1:(n() - 3))
+PD_21 <- PD_21[,-c(1,3)]
+colnames(PD_21)[2] <- "Cmp_pass"
+colnames(PD_21)[3] <- "Att_pct"
+colnames(PD_21)[4] <- "Cmp_pct_pass"
+colnames(PD_21)[5] <- "Yds_pass"
+colnames(PD_21)[6] <- "TD_pass"
+colnames(PD_21)[7] <- "TD_pct_pass"
+colnames(PD_21)[10] <- "Int_pct"
+colnames(PD_21)[13] <- "Y.C_pass"
+colnames(PD_21)[14] <- "Y.G_pass"
+colnames(PD_21)[17] <- "Yds_Sk"
+colnames(PD_21)[19] <- "Sk_pct"
+colnames(PD_21)[22] <- "EXP_pass"
+
+#PD_21
+```
+
+```{r RD_21}
+RD_21 <- read.csv("data/2021/RD_21.csv", header = TRUE)
+RD_21 <- slice(RD_21, 1:(n() - 3))
+RD_21 <- RD_21[,-c(1,3)]
+colnames(RD_21)[2] <- "Att_run"
+colnames(RD_21)[3] <- "Yds_run"
+colnames(RD_21)[4] <- "TD_run"
+colnames(RD_21)[5] <- "Y.A_run"
+colnames(RD_21)[6] <- "Y.G_run"
+colnames(RD_21)[7] <- "EXP_run"
+
+#RD_02
+
+```
+
+```{r KPRA_21}
+KPRA_21 <- read.csv("data/2021/KPRA_21.csv", skip = 1, header = TRUE)
+KPRA_21 <- slice(KPRA_21, 1:(n() - 3))
+KPRA_21 <- KPRA_21[,-c(1,3)]
+colnames(KPRA_21)[2] <- "Ret_punt"
+colnames(KPRA_21)[3] <- "Yds_punt"
+colnames(KPRA_21)[4] <- "TD_punt"
+colnames(KPRA_21)[5] <- "Y.R_punt"
+colnames(KPRA_21)[6] <- "Ret_kick"
+colnames(KPRA_21)[7] <- "Yds_kick"
+colnames(KPRA_21)[8] <- "TD_kick"
+colnames(KPRA_21)[9] <- "Y.R_kick"
+
+#KPRA_21
+
+```
+
+```{r KA_21}
+KA_21 <- read.csv("data/2021/KA_21.csv", skip = 1, header = TRUE)
+KA_21 <- slice(KA_21, 1:(n() - 3))
+KA_21 <- KA_21[,-c(1,3)]
+
+
+colnames(KA_21)[4] <- "FG_pct"
+colnames(KA_21)[7] <- "XP_pct"
+
+KA_21$FG_pct <- gsub("%", "",KA_21$FG_pct)
+KA_21$XP_pct <- gsub("%", "",KA_21$XP_pct)
+
+KA_21$FG_pct <- as.numeric(KA_21$FG_pct)
+KA_21$XP_pct <- as.numeric(KA_21$XP_pct)
+
+#KA_21
+```
+
+```{r PA_21}
+PA_21 <- read.csv("data/2021/PA_21.csv", skip = 1, header = TRUE)
+PA_21 <- slice(PA_21, 1:(n() - 3))
+PA_21 <- PA_21[,-c(1,3,7)]
+colnames(PA_21)[3] <- "Yds_punt"
+colnames(PA_21)[4] <- "Y.P_punt"
+
+#PA_21
+```
+
+```{r SD_21}
+SD_21 <- read.csv("data/2021/SD_21.csv", header = TRUE)
+SD_21 <- slice(SD_21, 1:(n() - 3))
+SD_21 <- SD_21[,-c(1,3,4,5,15,16,17,18)]
+SD_21 <- replace(SD_21, is.na(SD_21), 0)
+
+#SD_21
+```
+
+```{r CA_21}
+CA_21 <- read.csv("data/2021/CA_21.csv",skip = 1, header = TRUE)
+CA_21 <- slice(CA_21, 1:(n() - 1))
+CA_21 <- CA_21[,-c(1,3)]
+
+
+CA_21$X3D. <- gsub("%", "",CA_21$X3D.)
+CA_21$X3D. <- as.numeric(CA_21$X3D.)
+
+CA_21$X4D. <- gsub("%", "",CA_21$X4D.)
+CA_21$X4D. <- as.numeric(CA_21$X4D.)
+
+CA_21$RZPct <- gsub("%", "",CA_21$RZPct)
+CA_21$RZPct <- as.numeric(CA_21$RZPct)
+
+colnames(CA_21)[4] <- "X3D_Pct"
+colnames(CA_21)[7] <- "X4D_Pct"
+
+#CA_21
+```
+
+```{r DAA_21}
+DAA_21 <- read.csv("data/2021/DAA_21.csv",skip = 1, header = TRUE)
+DAA_21 <- slice(DAA_21, 1:(n() - 1))
+DAA_21 <- DAA_21[,-c(1,3)]
+
+DAA_21$Start <- gsub("Own ", "",DAA_21$Start)
+DAA_21$Start <- as.numeric(DAA_21$Start)
+DAA_21$Start <- 100 - DAA_21$Start 
+
+
+DAA_21$Time <- sapply(strsplit(DAA_21$Time,":"),
+  function(x) {
+    x <- as.numeric(x)
+    x[1]+x[2]/60
+    }
+)
+
+colnames(DAA_21)[2] <- "Num_drives"
+colnames(DAA_21)[4] <- "Sc_pct"
+colnames(DAA_21)[5] <- "TO_pct"
+colnames(DAA_21)[6] <- "Plays_per_drive"
+colnames(DAA_21)[7] <- "Yds_per_drive"
+colnames(DAA_21)[8] <- "Start_pos"
+colnames(DAA_21)[9] <- "Time_per_drive"
+colnames(DAA_21)[10] <- "Pts_per_drive"
+
+#DAA_21
+```
+
+```{r WINS_21}
+AFC_21 <- read.csv("data/2021/AFC_21.csv", header = TRUE)
+NFC_21 <- read.csv("data/2021/NFC_21.csv", header = TRUE)
+
+
+AFC_21 <- AFC_21[,-c(2,3,4,6,7,8,9)]
+NFC_21 <- NFC_21[,-c(2,3,4,6,7,8,9)]
+
+Wins_21 <- rbind(AFC_21,NFC_21)
+Wins_21
+```
+
+```{r MERGE_21}
+Full_21 <- merge(TD_21, Wins_21, by.x = "Tm", by.y = "Tm")
+Full_21 <- merge(Full_21, PD_21, by.x = "Tm", by.y = "Tm")
+Full_21 <- merge(Full_21, RD_21, by.x = "Tm", by.y = "Tm")
+Full_21 <- merge(Full_21, KPRA_21, by.x = "Tm", by.y = "Tm")
+Full_21 <- merge(Full_21, PA_21, by.x = "Tm", by.y = "Tm")
+Full_21 <- merge(Full_21, KA_21, by.x = "Tm", by.y = "Tm")
+Full_21 <- merge(Full_21, SD_21, by.x = "Tm", by.y = "Tm")
+Full_21 <- merge(Full_21, CA_21, by.x = "Tm", by.y = "Tm")
+Full_21 <- merge(Full_21, DAA_21, by.x = "Tm", by.y = "Tm")
+
+Full_21
+```
+
+
+
+# 2022 Season
+
+```{r TD_22}
+TD_22 <- read.csv("data/2022/TD_22.csv",skip = 1, header = TRUE)
+
+TD_22 <- TD_22[,-c(1,11,12,13,14,15,16,18,19,20,21)]
+TD_22 <- slice(TD_22, 1:(n() - 3))
+
+colnames(TD_22)[4] <- "Yds_tot"
+colnames(TD_22)[9] <- "1stD_tot"
+colnames(TD_22)[10] <- "1stD_pass"
+colnames(TD_22)[11] <- "1stD_run"
+colnames(TD_22)[13] <- "Yds_pen"
+colnames(TD_22)[14] <- "1stD_pen"
+colnames(TD_22)[15] <- "Score_pct"
+colnames(TD_22)[16] <- "TO_pct"
+colnames(TD_22)[17] <- "EXP_tot"
+
+#TD_22
+```
+
+```{r PD_22}
+PD_22 <- read.csv("data/2022/PD_22.csv", header = TRUE)
+PD_22 <- slice(PD_22, 1:(n() - 3))
+PD_22 <- PD_22[,-c(1,3)]
+colnames(PD_22)[2] <- "Cmp_pass"
+colnames(PD_22)[3] <- "Att_pct"
+colnames(PD_22)[4] <- "Cmp_pct_pass"
+colnames(PD_22)[5] <- "Yds_pass"
+colnames(PD_22)[6] <- "TD_pass"
+colnames(PD_22)[7] <- "TD_pct_pass"
+colnames(PD_22)[10] <- "Int_pct"
+colnames(PD_22)[13] <- "Y.C_pass"
+colnames(PD_22)[14] <- "Y.G_pass"
+colnames(PD_22)[17] <- "Yds_Sk"
+colnames(PD_22)[19] <- "Sk_pct"
+colnames(PD_22)[22] <- "EXP_pass"
+
+#PD_22
+```
+
+```{r RD_22}
+RD_22 <- read.csv("data/2022/RD_22.csv", header = TRUE)
+RD_22 <- slice(RD_22, 1:(n() - 3))
+RD_22 <- RD_22[,-c(1,3)]
+colnames(RD_22)[2] <- "Att_run"
+colnames(RD_22)[3] <- "Yds_run"
+colnames(RD_22)[4] <- "TD_run"
+colnames(RD_22)[5] <- "Y.A_run"
+colnames(RD_22)[6] <- "Y.G_run"
+colnames(RD_22)[7] <- "EXP_run"
+
+#RD_02
+
+```
+
+```{r KPRA_22}
+KPRA_22 <- read.csv("data/2022/KPRA_22.csv", skip = 1, header = TRUE)
+KPRA_22 <- slice(KPRA_22, 1:(n() - 3))
+KPRA_22 <- KPRA_22[,-c(1,3)]
+colnames(KPRA_22)[2] <- "Ret_punt"
+colnames(KPRA_22)[3] <- "Yds_punt"
+colnames(KPRA_22)[4] <- "TD_punt"
+colnames(KPRA_22)[5] <- "Y.R_punt"
+colnames(KPRA_22)[6] <- "Ret_kick"
+colnames(KPRA_22)[7] <- "Yds_kick"
+colnames(KPRA_22)[8] <- "TD_kick"
+colnames(KPRA_22)[9] <- "Y.R_kick"
+
+#KPRA_22
+
+```
+
+```{r KA_22}
+KA_22 <- read.csv("data/2022/KA_22.csv", skip = 1, header = TRUE)
+KA_22 <- slice(KA_22, 1:(n() - 3))
+KA_22 <- KA_22[,-c(1,3)]
+
+
+colnames(KA_22)[4] <- "FG_pct"
+colnames(KA_22)[7] <- "XP_pct"
+
+KA_22$FG_pct <- gsub("%", "",KA_22$FG_pct)
+KA_22$XP_pct <- gsub("%", "",KA_22$XP_pct)
+
+KA_22$FG_pct <- as.numeric(KA_22$FG_pct)
+KA_22$XP_pct <- as.numeric(KA_22$XP_pct)
+
+#KA_22
+```
+
+```{r PA_22}
+PA_22 <- read.csv("data/2022/PA_22.csv", skip = 1, header = TRUE)
+PA_22 <- slice(PA_22, 1:(n() - 3))
+PA_22 <- PA_22[,-c(1,3,7)]
+colnames(PA_22)[3] <- "Yds_punt"
+colnames(PA_22)[4] <- "Y.P_punt"
+
+#PA_22
+```
+
+```{r SD_22}
+SD_22 <- read.csv("data/2022/SD_22.csv", header = TRUE)
+SD_22 <- slice(SD_22, 1:(n() - 3))
+SD_22 <- SD_22[,-c(1,3,4,5,15,16,17,18)]
+SD_22 <- replace(SD_22, is.na(SD_22), 0)
+
+#SD_22
+```
+
+```{r CA_22}
+CA_22 <- read.csv("data/2022/CA_22.csv",skip = 1, header = TRUE)
+CA_22 <- slice(CA_22, 1:(n() - 1))
+CA_22 <- CA_22[,-c(1,3)]
+
+
+CA_22$X3D. <- gsub("%", "",CA_22$X3D.)
+CA_22$X3D. <- as.numeric(CA_22$X3D.)
+
+CA_22$X4D. <- gsub("%", "",CA_22$X4D.)
+CA_22$X4D. <- as.numeric(CA_22$X4D.)
+
+CA_22$RZPct <- gsub("%", "",CA_22$RZPct)
+CA_22$RZPct <- as.numeric(CA_22$RZPct)
+
+colnames(CA_22)[4] <- "X3D_Pct"
+colnames(CA_22)[7] <- "X4D_Pct"
+
+#CA_22
+```
+
+```{r DAA_22}
+DAA_22 <- read.csv("data/2022/DAA_22.csv",skip = 1, header = TRUE)
+DAA_22 <- slice(DAA_22, 1:(n() - 1))
+DAA_22 <- DAA_22[,-c(1,3)]
+
+DAA_22$Start <- gsub("Own ", "",DAA_22$Start)
+DAA_22$Start <- as.numeric(DAA_22$Start)
+DAA_22$Start <- 100 - DAA_22$Start 
+
+
+DAA_22$Time <- sapply(strsplit(DAA_22$Time,":"),
+  function(x) {
+    x <- as.numeric(x)
+    x[1]+x[2]/60
+    }
+)
+
+colnames(DAA_22)[2] <- "Num_drives"
+colnames(DAA_22)[4] <- "Sc_pct"
+colnames(DAA_22)[5] <- "TO_pct"
+colnames(DAA_22)[6] <- "Plays_per_drive"
+colnames(DAA_22)[7] <- "Yds_per_drive"
+colnames(DAA_22)[8] <- "Start_pos"
+colnames(DAA_22)[9] <- "Time_per_drive"
+colnames(DAA_22)[10] <- "Pts_per_drive"
+
+#DAA_22
+```
+
+```{r WINS_22}
+AFC_22 <- read.csv("data/2022/AFC_22.csv", header = TRUE)
+NFC_22 <- read.csv("data/2022/NFC_22.csv", header = TRUE)
+
+
+AFC_22 <- AFC_22[,-c(2,3,4,6,7,8,9)]
+NFC_22 <- NFC_22[,-c(2,3,4,6,7,8,9)]
+
+Wins_22 <- rbind(AFC_22,NFC_22)
+Wins_22
+```
+
+```{r MERGE_22}
+Full_22 <- merge(TD_22, Wins_22, by.x = "Tm", by.y = "Tm")
+Full_22 <- merge(Full_22, PD_22, by.x = "Tm", by.y = "Tm")
+Full_22 <- merge(Full_22, RD_22, by.x = "Tm", by.y = "Tm")
+Full_22 <- merge(Full_22, KPRA_22, by.x = "Tm", by.y = "Tm")
+Full_22 <- merge(Full_22, PA_22, by.x = "Tm", by.y = "Tm")
+Full_22 <- merge(Full_22, KA_22, by.x = "Tm", by.y = "Tm")
+Full_22 <- merge(Full_22, SD_22, by.x = "Tm", by.y = "Tm")
+Full_22 <- merge(Full_22, CA_22, by.x = "Tm", by.y = "Tm")
+Full_22 <- merge(Full_22, DAA_22, by.x = "Tm", by.y = "Tm")
+
+Full_22
+```
+
+
+```{r}
+#Gathering specific teams to test against
+
+#2002
+specific_teams <- Full_02[Full_02$Tm == 'Tampa Bay Buccaneers',]
+
+#2004
+specific_teams[nrow(specific_teams) + 1,] = Full_04[Full_04$Tm == 'Buffalo Bills',]
+specific_teams[nrow(specific_teams) + 1,] = Full_04[Full_04$Tm == 'San Francisco 49ers',]
+
+#2005
+specific_teams[nrow(specific_teams) + 1,] = Full_05[Full_05$Tm == 'Chicago Bears',]
+specific_teams[nrow(specific_teams) + 1,] = Full_05[Full_05$Tm == 'Houston Texans',]
+
+#2007
+specific_teams[nrow(specific_teams) + 1,] = Full_07[Full_07$Tm == 'Baltimore Ravens',]
+specific_teams[nrow(specific_teams) + 1,] = Full_07[Full_07$Tm == 'Miami Dolphins',]
+
+#2008
+specific_teams[nrow(specific_teams) + 1,] = Full_08[Full_08$Tm == 'Pittsburgh Steelers',]
+specific_teams[nrow(specific_teams) + 1,] = Full_08[Full_08$Tm == 'Detroit Lions',]
+specific_teams[nrow(specific_teams) + 1,] = Full_08[Full_08$Tm == 'St. Louis Rams',]
+
+#2009
+specific_teams[nrow(specific_teams) + 1,] = Full_09[Full_09$Tm == 'Detroit Lions',]
+specific_teams[nrow(specific_teams) + 1,] = Full_09[Full_09$Tm == 'St. Louis Rams',]
+
+#2010
+specific_teams[nrow(specific_teams) + 1,] = Full_10[Full_10$Tm == 'Carolina Panthers',]
+
+#2011
+specific_teams[nrow(specific_teams) + 1,] = Full_11[Full_11$Tm == 'St. Louis Rams',]
+specific_teams[nrow(specific_teams) + 1,] = Full_11[Full_11$Tm == 'Indianapolis Colts',]
+
+#2012
+specific_teams[nrow(specific_teams) + 1,] = Full_12[Full_12$Tm == 'New Orleans Saints',]
+
+#2013
+specific_teams[nrow(specific_teams) + 1,] = Full_13[Full_13$Tm == 'Seattle Seahawks',]
+
+#2014
+specific_teams[nrow(specific_teams) + 1,] = Full_14[Full_14$Tm == 'Minnesota Vikings',]
+
+
+#2015
+specific_teams[nrow(specific_teams) + 1,] = Full_15[Full_15$Tm == 'Denver Broncos',]
+
+
+#2016
+specific_teams[nrow(specific_teams) + 1,] = Full_16[Full_16$Tm == 'San Diego Chargers',]
+
+
+#2017
+specific_teams[nrow(specific_teams) + 1,] = Full_17[Full_17$Tm == 'New England Patriots',]
+specific_teams[nrow(specific_teams) + 1,] = Full_17[Full_17$Tm == 'Denver Broncos',]
+
+#2020
+specific_teams[nrow(specific_teams) + 1,] = Full_20[Full_20$Tm == 'Cincinnati Bengals',]
+specific_teams[nrow(specific_teams) + 1,] = Full_20[Full_20$Tm == 'Arizona Cardinals',]
+
+
+#2022
+specific_teams[nrow(specific_teams) + 1,] = Full_22[Full_22$Tm == 'Philadelphia Eagles',]
+
+
+specific_teams <- specific_teams[,-c(16,47)]
+
+colnames(specific_teams)[9] <- "FirstD_tot"
+colnames(specific_teams)[10] <- "FirstD_pass"
+colnames(specific_teams)[11] <- "FirstD_run"
+colnames(specific_teams)[14] <- "FirstD_pen"
+colnames(specific_teams)[19] <- "Att_pass"
+
+rownames(specific_teams) <- NULL
+
+specific_teams
+
+#save(specific_teams, file = ".RData")
+```
+
+
+```{r}
+# Combine all of the full years data together into final dataset
+data <- bind_rows(Full_02,
+                       Full_03,
+                       Full_04,
+                       Full_05,
+                       Full_06,
+                       Full_07,
+                       Full_08,
+                       Full_09,
+                       Full_10,
+                       Full_11,
+                       Full_12,
+                       Full_13,
+                       Full_14,
+                       Full_15,
+                       Full_16,
+                       Full_17,
+                       Full_18,
+                       Full_19,
+                       Full_20,
+                       Full_21,
+                       Full_20)
+
+#Remove some final columns wiht NA values
+data <- data[,-c(16,47)]
+data <- data[, !names(data) %in% c("QBHits", "Sk.", "EXP","ANY.A","TFL")]
+
+#Final renaming of columns
+colnames(data)[9] <- "FirstD_tot"
+colnames(data)[10] <- "FirstD_pass"
+colnames(data)[11] <- "FirstD_run"
+colnames(data)[14] <- "FirstD_pen"
+colnames(data)[19] <- "Att_pass"
+
+#remove team
+data <- data[,-c(1)]
+
+data
+
+#Save dataset to .RData
+save(data, specific_teams, file = ".RData")
+```
+
+```{r}
+?save
+```
+
+
